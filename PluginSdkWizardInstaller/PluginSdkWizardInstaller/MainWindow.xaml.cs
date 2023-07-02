@@ -15,7 +15,7 @@ namespace PluginSdkWizardInstaller {
         private BitmapImage iconNothing;
         private BitmapImage iconNotSet;
 
-        enum DevEnv { NONE = -1, VS2019, VS2017, VS2015, CODEBLOCKS };
+        enum DevEnv { NONE = -1, VS2022, VS2019, VS2017, VS2015, CODEBLOCKS };
 
         private string[] varIdents =
         {
@@ -129,7 +129,9 @@ namespace PluginSdkWizardInstaller {
 
         private void installVsWizard_Click(object sender, RoutedEventArgs e) {
             Button vsBtn = sender as Button;
-            if (vsBtn.Name == "btnVs2019")
+            if (vsBtn.Name == "btnVs2022")
+                cmbGenerateSlnFor.SelectedIndex = (int)DevEnv.VS2022;
+            else if (vsBtn.Name == "btnVs2019")
                 cmbGenerateSlnFor.SelectedIndex = (int)DevEnv.VS2019;
             else if (vsBtn.Name == "btnVs2017")
                 cmbGenerateSlnFor.SelectedIndex = (int)DevEnv.VS2017;
@@ -311,6 +313,7 @@ namespace PluginSdkWizardInstaller {
         private void cmbGenerateSlnFor_SelectionChanged(object sender, SelectionChangedEventArgs e) {
             ComboBox cmb = sender as ComboBox;
             btnGenerateSln.IsEnabled = cmb.SelectedIndex != (int)DevEnv.NONE;
+
             if (cmb.SelectedIndex == (int)DevEnv.VS2015 || cmb.SelectedIndex == (int)DevEnv.VS2017 || cmb.SelectedIndex == (int)DevEnv.VS2019)
             {
                 chkSlnWinXpSupport.IsEnabled = true;
@@ -320,14 +323,26 @@ namespace PluginSdkWizardInstaller {
                     lblSlnNote.Visibility = Visibility.Visible;
                 }
                 else
-                    chkSlnWinXpSupport.IsChecked = true;
+                {
+                    lblSlnNote.Content = "";
+                    lblSlnNote.Visibility = Visibility.Hidden;
+                }
             }
             else
             {
                 chkSlnWinXpSupport.IsChecked = cmb.SelectedIndex == (int)DevEnv.CODEBLOCKS;
                 chkSlnWinXpSupport.IsEnabled = false;
-                lblSlnNote.Content = "";
-                lblSlnNote.Visibility = Visibility.Hidden;
+
+                if (cmbGenerateSlnFor.SelectedIndex == (int)DevEnv.VS2022)
+                {
+                    lblSlnNote.Content = "Note: xp support is deprecated";
+                    lblSlnNote.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    lblSlnNote.Content = "";
+                    lblSlnNote.Visibility = Visibility.Hidden;
+                }
             }
         }
 
@@ -347,6 +362,9 @@ namespace PluginSdkWizardInstaller {
             }
             ProcessStartInfo info = new ProcessStartInfo(premakeExePath);
             switch (cmbGenerateSlnFor.SelectedIndex) {
+                case (int)DevEnv.VS2022:
+                    info.Arguments = "vs2022";
+                    break;
                 case (int)DevEnv.VS2019:
                     info.Arguments = "vs2019";
                     break;
