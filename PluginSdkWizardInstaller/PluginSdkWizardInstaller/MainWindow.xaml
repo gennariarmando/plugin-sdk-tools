@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PluginSdkWizardInstaller"
         mc:Ignorable="d"
-        Title="Plugin-SDK Installer v0.8.1" Width="880" Height="590" MinWidth="880" MinHeight="590" Icon="/Icons/packageicon.ico" WindowStartupLocation="CenterScreen">
+        Title="Plugin-SDK Installer v0.8.1" Width="880" Height="590" MinWidth="880" MinHeight="590" Icon="/Icons/packageicon.ico" WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
     <Grid Margin="0,0,0.333,0.667">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -30,10 +30,11 @@
                     </Style>
                     <Style TargetType="Label" >
                         <Setter Property="Padding" Value="5,5,0,5" />
-                        <Setter Property="FontSize" Value="16" />
+                        <Setter Property="FontSize" Value="12" />
                     </Style>
                 </Grid.Resources>
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
                     <ColumnDefinition/>
                     <ColumnDefinition/>
                     <ColumnDefinition/>
