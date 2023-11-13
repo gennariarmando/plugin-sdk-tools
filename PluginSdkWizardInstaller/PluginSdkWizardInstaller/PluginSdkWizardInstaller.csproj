@@ -171,14 +171,20 @@
     <Resource Include="Icons\notset.png" />
     <Resource Include="Icons\ok.png" />
     <Resource Include="Icons\packageicon.ico" />
-    <Resource Include="Icons\vs2015.png" />
-    <Resource Include="Icons\vs2017.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Icons\vs2019.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Icons\vs2022.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\psdk.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\cmd.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\vs2015.png" />
+    <Resource Include="Icons\vs2017.png" />
+    <Resource Include="Icons\vs2019.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

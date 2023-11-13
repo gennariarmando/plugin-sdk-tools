@@ -20,8 +20,7 @@ namespace PluginSdkWizardInstaller {
         private string[] varIdents =
         {
             "SDK",
-            "SA", "VC", "III",
-            "DX9", "RWD3D9",
+            "IV", "SA", "VC", "III", "II",
             "CLEOSA", "CLEOVC", "CLEOIII",
             "MOONSDK"
         };
@@ -144,10 +143,19 @@ namespace PluginSdkWizardInstaller {
                     Process.Start(vsixPath);
                 else
                     MessageBox.Show(String.Format("Can't find '{0}'", vsixPath));
-            }
-            
+            }   
         }
 
+        private void generateNewPlugin_Click(object sender, RoutedEventArgs e) {
+            string sdkDir = GetPluginSdkDir();
+            if (sdkDir != "") {
+                string vsixPath = Path.Combine(sdkDir, "tools\\myplugin-gen\\Generate MyPlugin.bat");
+                if (File.Exists(vsixPath))
+                    Process.Start(vsixPath);
+                else
+                    MessageBox.Show(String.Format("Can't find '{0}'", vsixPath));
+            }
+        }
         public static void CopyAll(DirectoryInfo source, DirectoryInfo target) {
             Directory.CreateDirectory(target.FullName);
             foreach (FileInfo fi in source.GetFiles())
@@ -314,6 +322,10 @@ namespace PluginSdkWizardInstaller {
             ComboBox cmb = sender as ComboBox;
             btnGenerateSln.IsEnabled = cmb.SelectedIndex != (int)DevEnv.NONE;
 
+            //string pluginSdkDir = GetPluginSdkDir();
+            //string buildSlnPath = Path.Combine(pluginSdkDir, "plugin.sln");
+            //btnBuildSln.IsEnabled = btnGenerateSln.IsEnabled && File.Exists(buildSlnPath);
+
             if (cmb.SelectedIndex == (int)DevEnv.VS2015 || cmb.SelectedIndex == (int)DevEnv.VS2017 || cmb.SelectedIndex == (int)DevEnv.VS2019)
             {
                 chkSlnWinXpSupport.IsEnabled = true;
@@ -394,6 +406,16 @@ namespace PluginSdkWizardInstaller {
         {
             //TODO: build logic to find Visual Studio installation folder; then find environment shell script;
             // then execute msbuild.
+
+            //string sdkDir = GetPluginSdkDir();
+            //if (sdkDir != "")
+            //{
+            //    string vsixPath = Path.Combine(sdkDir, "tools\\build\\Build Solution.bat");
+            //    if (File.Exists(vsixPath))
+            //        Process.Start(vsixPath);
+            //    else
+            //        MessageBox.Show(String.Format("Can't find '{0}'", vsixPath));
+            //}
         }
 
         static private string FindDirByVariableName(string varName)

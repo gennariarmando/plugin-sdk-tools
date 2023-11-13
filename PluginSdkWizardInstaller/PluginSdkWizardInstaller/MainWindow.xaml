@@ -5,20 +5,18 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PluginSdkWizardInstaller"
         mc:Ignorable="d"
-        Title="Plugin-SDK Installer v0.8.1" Width="880" Height="590" MinWidth="880" MinHeight="590" Icon="/Icons/packageicon.ico" WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
-    <Grid Margin="0,0,0.333,0.667">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
-        <Grid x:Name="grdWizTmplButtons" IsEnabled="False">
+        Title="Plugin-SDK Installer v0.8.2" Width="800" Height="600" MinWidth="800" MinHeight="600" Icon="/Icons/packageicon.ico" WindowStartupLocation="CenterScreen" SizeToContent="Manual" WindowState="Normal" BorderThickness="0">
+    <Grid Margin="0,0,0.0,0.0">
+        <Grid>
+            <StackPanel Grid.Row="8" Grid.ColumnSpan="7" Margin="0,0,0,20"/>
+        </Grid>
+        <Grid x:Name="grdWizTmplButtons" IsEnabled="False" Margin="0,4,0,284" VerticalAlignment="Top">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <Label x:Name="lblWizTmplButtons" Content="Install Plugin-SDK Wizard/Templates" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="16"/>
-            <Grid Grid.Row="1" Margin="15,0">
+            <Label x:Name="lblWizTmplButtons" Content="Utilities for new plugins:" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center" FontSize="16" Foreground="Black"/>
+            <Grid Margin="10,47,10,0" Grid.RowSpan="2" VerticalAlignment="Top">
                 <Grid.Resources >
                     <Style TargetType="Button" >
                         <Setter Property="Margin" Value="5,5,5,5" />
@@ -40,45 +38,29 @@
                     <ColumnDefinition/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <Button x:Name="btnVs2022" Click="installVsWizard_Click">
+                <Button x:Name="btnMyPluginGen" Click="generateNewPlugin_Click" Grid.ColumnSpan="3" Margin="20,2,160,3">
                     <StackPanel Orientation="Horizontal">
+                        <Image Source="/Icons/cmd.png" />
                         <Image Source="/Icons/vs2022.png" />
-                        <Label Content="Visual Studio 2022" />
+                        <Label Content="Visual Studio (any version)" Foreground="Black" />
                     </StackPanel>
                 </Button>
-                <Button x:Name="btnVs2019" Grid.Column="1" Click="installVsWizard_Click">
+                <Button x:Name="btnCB" Click="installCB_Click" Grid.ColumnSpan="3" Margin="160,2,20,3" Grid.Column="2">
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="/Icons/vs2019.png" />
-                        <Label Content="Visual Studio 2019" />
-                    </StackPanel>
-                </Button>
-                <Button x:Name="btnVs2017" Grid.Column="2" Click="installVsWizard_Click">
-                    <StackPanel Orientation="Horizontal">
-                        <Image Source="/Icons/vs2017.png" />
-                        <Label Content="Visual Studio 2017" />
-                    </StackPanel>
-                </Button>
-                <Button x:Name="btnVs2015" Grid.Column="3" Click="installVsWizard_Click">
-                    <StackPanel Orientation="Horizontal">
-                        <Image Source="/Icons/vs2015.png" />
-                        <Label Grid.Column="1" Content="Visual Studio 2015" />
-                    </StackPanel>
-                </Button>
-                <Button x:Name="btnCB" Grid.Column="4" Click="installCB_Click">
-                    <StackPanel Orientation="Horizontal">
-                        <Image Source="/Icons/cb.png" Width="20" Height="20" />
-                        <Label Content="Code::Blocks" />
+                        <Image Source="/Icons/cb.png" />
+                        <Label Content="Code::Blocks" Foreground="Black" />
                     </StackPanel>
                 </Button>
             </Grid>
+            <Image Source="/Icons/psdk.png" Margin="0,0,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Height="34" Width="215" />
         </Grid>
-        <Grid Grid.Row="1">
+        <Grid Margin="0,84,0,0" VerticalAlignment="Top" Height="527">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <Label x:Name="lblSetupEnvVars" Content="Setup Plugin-SDK environment variables" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="16"/>
+            <Label x:Name="lblSetupEnvVars" Content="Setup Plugin-SDK environment variables:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="16"/>
             <Grid x:Name="grdEnvVars" Grid.Row="1" Margin="15,0">
                 <Grid.Resources >
                     <Style TargetType="Button" >
@@ -121,34 +103,27 @@
                 </Grid.ColumnDefinitions>
 
                 <Label x:Name="lblSDK"     Grid.Row="0" Content="Plugin-SDK folder (PLUGIN__SDK__DIR)" />
-                <Label x:Name="lblSA"      Grid.Row="1" Content="GTA San Andreas folder (GTA__SA__DIR)" />
-                <Label x:Name="lblVC"      Grid.Row="2" Content="GTA Vice City folder (GTA__VC__DIR)" />
-                <Label x:Name="lblIII"     Grid.Row="3" Content="GTA 3 folder (GTA__III__DIR)" />
-                <Label x:Name="lblDX9"     Grid.Row="4" Content="DirectX9 SDK folder (DIRECTX9__SDK__DIR)" />
-                <Label x:Name="lblRWD3D9"  Grid.Row="5" Content="rwd3d9 folder (RWD3D9__DIR)" />
+                <Label x:Name="lblIV"      Grid.Row="1" Content="GTA IV folder (GTA__IV__DIR)" />
+                <Label x:Name="lblSA"      Grid.Row="2" Content="GTA San Andreas folder (GTA__SA__DIR)" />
+                <Label x:Name="lblVC"      Grid.Row="3" Content="GTA Vice City folder (GTA__VC__DIR)" />
+                <Label x:Name="lblIII"     Grid.Row="4" Content="GTA 3 folder (GTA__III__DIR)" />
+                <Label x:Name="lblII"      Grid.Row="5" Content="GTA 2 folder (GTA__II__DIR)" />
                 <Label x:Name="lblCLEOSA"  Grid.Row="6" Content="CLEO SDK (GTA SA) folder (CLEO__SDK__SA__DIR)" />
                 <Label x:Name="lblCLEOVC"  Grid.Row="7" Content="CLEO SDK (GTA VC) folder (CLEO__SDK__VC__DIR)" />
                 <Label x:Name="lblCLEOIII" Grid.Row="8" Content="CLEO SDK (GTA 3) folder (CLEO__SDK__III__DIR)" />
                 <Label x:Name="lblMOONSDK" Grid.Row="9" Content="MoonLoader SDK folder (MOONLOADER__SDK__SA__DIR)" />
 
                 <TextBox x:Name="tbxSDK"     Grid.Row="0" Grid.Column="1" TextChanged="tbx_TextChanged" />
-                <TextBox x:Name="tbxSA"      Grid.Row="1" Grid.Column="1" TextChanged="tbx_TextChanged" />
-                <TextBox x:Name="tbxVC"      Grid.Row="2" Grid.Column="1" TextChanged="tbx_TextChanged" />
-                <TextBox x:Name="tbxIII"     Grid.Row="3" Grid.Column="1" TextChanged="tbx_TextChanged" />
-                <TextBox x:Name="tbxDX9"     Grid.Row="4" Grid.Column="1" TextChanged="tbx_TextChanged" />
-                <TextBox x:Name="tbxRWD3D9"  Grid.Row="5" Grid.Column="1" TextChanged="tbx_TextChanged" />
+                <TextBox x:Name="tbxIV"      Grid.Row="1" Grid.Column="1" TextChanged="tbx_TextChanged" />
+                <TextBox x:Name="tbxSA"      Grid.Row="2" Grid.Column="1" TextChanged="tbx_TextChanged" />
+                <TextBox x:Name="tbxVC"      Grid.Row="3" Grid.Column="1" TextChanged="tbx_TextChanged" />
+                <TextBox x:Name="tbxIII"     Grid.Row="4" Grid.Column="1" TextChanged="tbx_TextChanged" />
+                <TextBox x:Name="tbxII"      Grid.Row="5" Grid.Column="1" TextChanged="tbx_TextChanged" />
                 <TextBox x:Name="tbxCLEOSA"  Grid.Row="6" Grid.Column="1" TextChanged="tbx_TextChanged" />
                 <TextBox x:Name="tbxCLEOVC"  Grid.Row="7" Grid.Column="1" TextChanged="tbx_TextChanged" />
                 <TextBox x:Name="tbxCLEOIII" Grid.Row="8" Grid.Column="1" TextChanged="tbx_TextChanged" />
                 <TextBox x:Name="tbxMOONSDK" Grid.Row="9" Grid.Column="1" TextChanged="tbx_TextChanged" />
-
-                <Button x:Name="infDX9" Grid.Row="4" Grid.Column="2" ToolTip="Get more information about DirectX9 SDK" Tag="https://www.microsoft.com/en-us/download/details.aspx?id=6812" Click="inf_Click" >
-                    <Image Source="/Icons/info.png" />
-                </Button>
-                <Button x:Name="infRWD3D9" Grid.Row="5" Grid.Column="2" ToolTip="Get more information about rwd3d9" Tag="http://gtaforums.com/topic/819551-rwd3d9-d3d9-extension-for-rw/" Click="inf_Click" >
-                    <Image Source="/Icons/info.png" />
-                </Button>
-                <Button x:Name="infCLEOSA" Grid.Row="6" Grid.Column="2" ToolTip="Get more information about CLEO SDK for GTA San Andreas" Tag="http://cleo.li/download.html" Click="inf_Click" >
+                <Button x:Name="infCLEOSA"   Grid.Row="6" Grid.Column="2" ToolTip="Get more information about CLEO SDK for GTA San Andreas" Tag="http://cleo.li/download.html" Click="inf_Click" >
                     <Image Source="/Icons/info.png" />
                 </Button>
                 <Button x:Name="infCLEOVC" Grid.Row="7" Grid.Column="2" ToolTip="Get more information about CLEO SDK for GTA Vice City" Tag="http://gtaforums.com/topic/807185-cleo-20/" Click="inf_Click" >
@@ -162,51 +137,50 @@
                 </Button>
 
                 <Button x:Name="autSDK"     Grid.Row="0" Grid.Column="3" Content="A" Click="autBtn_Click" ToolTip="Auto-detect" IsEnabled="True" />
-                <Button x:Name="autSA"      Grid.Row="1" Grid.Column="3" Content="A" Click="autBtn_Click" ToolTip="Auto-detect" IsEnabled="True" />
-                <Button x:Name="autVC"      Grid.Row="2" Grid.Column="3" Content="A" Click="autBtn_Click" ToolTip="Auto-detect" IsEnabled="True" />
-                <Button x:Name="autIII"     Grid.Row="3" Grid.Column="3" Content="A" Click="autBtn_Click" ToolTip="Auto-detect" IsEnabled="True" />
-                <Button x:Name="autDX9"     Grid.Row="4" Grid.Column="3" Content="A" Click="autBtn_Click" ToolTip="Auto-detect" IsEnabled="True" />
-                <Button x:Name="autRWD3D9"  Grid.Row="5" Grid.Column="3" Content="A" Click="autBtn_Click" ToolTip="Auto-detect" IsEnabled="True" />
+                <Button x:Name="autIV"      Grid.Row="1" Grid.Column="3" Content="A" Click="autBtn_Click" ToolTip="Auto-detect" IsEnabled="True" />
+                <Button x:Name="autSA"      Grid.Row="2" Grid.Column="3" Content="A" Click="autBtn_Click" ToolTip="Auto-detect" IsEnabled="True" />
+                <Button x:Name="autVC"      Grid.Row="3" Grid.Column="3" Content="A" Click="autBtn_Click" ToolTip="Auto-detect" IsEnabled="True" />
+                <Button x:Name="autIII"     Grid.Row="4" Grid.Column="3" Content="A" Click="autBtn_Click" ToolTip="Auto-detect" IsEnabled="True" />
+                <Button x:Name="autII"      Grid.Row="5" Grid.Column="3" Content="A" Click="autBtn_Click" ToolTip="Auto-detect" IsEnabled="True" />
                 <Button x:Name="autCLEOSA"  Grid.Row="6" Grid.Column="3" Content="A" Click="autBtn_Click" ToolTip="Auto-detect" IsEnabled="True" />
                 <Button x:Name="autCLEOVC"  Grid.Row="7" Grid.Column="3" Content="A" Click="autBtn_Click" ToolTip="Auto-detect" IsEnabled="True" />
                 <Button x:Name="autCLEOIII" Grid.Row="8" Grid.Column="3" Content="A" Click="autBtn_Click" ToolTip="Auto-detect" IsEnabled="True" />
-                <Button x:Name="autMOONSDK" Grid.Row="9" Grid.Column="3" Content="A" Click="autBtn_Click" ToolTip="Auto-detect" IsEnabled="True" Margin="1.667,0,2.333,1.667" VerticalAlignment="Bottom" />
+                <Button x:Name="autMOONSDK" Grid.Row="9" Grid.Column="3" Content="A" Click="autBtn_Click" ToolTip="Auto-detect" IsEnabled="True" />
 
-                
                 <Button x:Name="brwSDK"     Grid.Row="0" Grid.Column="4" Content="..." ToolTip="Browse..." Click="brwBtn_Click" />
-                <Button x:Name="brwSA"      Grid.Row="1" Grid.Column="4" Content="..." ToolTip="Browse..." Click="brwBtn_Click" />
-                <Button x:Name="brwVC"      Grid.Row="2" Grid.Column="4" Content="..." ToolTip="Browse..." Click="brwBtn_Click" />
-                <Button x:Name="brwIII"     Grid.Row="3" Grid.Column="4" Content="..." ToolTip="Browse..." Click="brwBtn_Click" />
-                <Button x:Name="brwDX9"     Grid.Row="4" Grid.Column="4" Content="..." ToolTip="Browse..." Click="brwBtn_Click" />
-                <Button x:Name="brwRWD3D9"  Grid.Row="5" Grid.Column="4" Content="..." ToolTip="Browse..." Click="brwBtn_Click" />
+                <Button x:Name="brwIV"      Grid.Row="1" Grid.Column="4" Content="..." ToolTip="Browse..." Click="brwBtn_Click" />
+                <Button x:Name="brwSA"      Grid.Row="2" Grid.Column="4" Content="..." ToolTip="Browse..." Click="brwBtn_Click" />
+                <Button x:Name="brwVC"      Grid.Row="3" Grid.Column="4" Content="..." ToolTip="Browse..." Click="brwBtn_Click" />
+                <Button x:Name="brwIII"     Grid.Row="4" Grid.Column="4" Content="..." ToolTip="Browse..." Click="brwBtn_Click" />
+                <Button x:Name="brwII"      Grid.Row="5" Grid.Column="4" Content="..." ToolTip="Browse..." Click="brwBtn_Click" />
                 <Button x:Name="brwCLEOSA"  Grid.Row="6" Grid.Column="4" Content="..." ToolTip="Browse..." Click="brwBtn_Click" />
                 <Button x:Name="brwCLEOVC"  Grid.Row="7" Grid.Column="4" Content="..." ToolTip="Browse..." Click="brwBtn_Click" />
                 <Button x:Name="brwCLEOIII" Grid.Row="8" Grid.Column="4" Content="..." ToolTip="Browse..." Click="brwBtn_Click" />
                 <Button x:Name="brwMOONSDK" Grid.Row="9" Grid.Column="4" Content="..." ToolTip="Browse..." Click="brwBtn_Click" />
 
                 <Button x:Name="setSDK"     Grid.Row="0" Grid.Column="5" Content="Set" Width="50" IsEnabled="False" Click="setBtn_Click" Tag="PLUGIN_SDK_DIR" />
-                <Button x:Name="setSA"      Grid.Row="1" Grid.Column="5" Content="Set" Width="50" IsEnabled="False" Click="setBtn_Click" Tag="GTA_SA_DIR" />
-                <Button x:Name="setVC"      Grid.Row="2" Grid.Column="5" Content="Set" Width="50" IsEnabled="False" Click="setBtn_Click" Tag="GTA_VC_DIR" />
-                <Button x:Name="setIII"     Grid.Row="3" Grid.Column="5" Content="Set" Width="50" IsEnabled="False" Click="setBtn_Click" Tag="GTA_III_DIR" />
-                <Button x:Name="setDX9"     Grid.Row="4" Grid.Column="5" Content="Set" Width="50" IsEnabled="False" Click="setBtn_Click" Tag="DIRECTX9_SDK_DIR" />
-                <Button x:Name="setRWD3D9"  Grid.Row="5" Grid.Column="5" Content="Set" Width="50" IsEnabled="False" Click="setBtn_Click" Tag="RWD3D9_DIR" />
+                <Button x:Name="setIV"      Grid.Row="1" Grid.Column="5" Content="Set" Width="50" IsEnabled="False" Click="setBtn_Click" Tag="GTA_IV_DIR" />
+                <Button x:Name="setSA"      Grid.Row="2" Grid.Column="5" Content="Set" Width="50" IsEnabled="False" Click="setBtn_Click" Tag="GTA_SA_DIR" />
+                <Button x:Name="setVC"      Grid.Row="3" Grid.Column="5" Content="Set" Width="50" IsEnabled="False" Click="setBtn_Click" Tag="GTA_VC_DIR" />
+                <Button x:Name="setIII"     Grid.Row="4" Grid.Column="5" Content="Set" Width="50" IsEnabled="False" Click="setBtn_Click" Tag="GTA_III_DIR" />
+                <Button x:Name="setII"      Grid.Row="5" Grid.Column="5" Content="Set" Width="50" IsEnabled="False" Click="setBtn_Click" Tag="GTA_II_DIR" />
                 <Button x:Name="setCLEOSA"  Grid.Row="6" Grid.Column="5" Content="Set" Width="50" IsEnabled="False" Click="setBtn_Click" Tag="CLEO_SDK_SA_DIR" />
                 <Button x:Name="setCLEOVC"  Grid.Row="7" Grid.Column="5" Content="Set" Width="50" IsEnabled="False" Click="setBtn_Click" Tag="CLEO_SDK_VC_DIR" />
                 <Button x:Name="setCLEOIII" Grid.Row="8" Grid.Column="5" Content="Set" Width="50" IsEnabled="False" Click="setBtn_Click" Tag="CLEO_SDK_III_DIR" />
                 <Button x:Name="setMOONSDK" Grid.Row="9" Grid.Column="5" Content="Set" Width="50" IsEnabled="False" Click="setBtn_Click" Tag="MOONLOADER_SDK_SA_DIR" />
 
                 <Image x:Name="imgSDK"     Grid.Row="0" Grid.Column="6" Margin="2" />
-                <Image x:Name="imgSA"      Grid.Row="1" Grid.Column="6" Margin="2" />
-                <Image x:Name="imgVC"      Grid.Row="2" Grid.Column="6" Margin="2" />
-                <Image x:Name="imgIII"     Grid.Row="3" Grid.Column="6" Margin="2" />
-                <Image x:Name="imgDX9"     Grid.Row="4" Grid.Column="6" Margin="2" />
-                <Image x:Name="imgRWD3D9"  Grid.Row="5" Grid.Column="6" Margin="2" />
+                <Image x:Name="imgIV"      Grid.Row="1" Grid.Column="6" Margin="2" />
+                <Image x:Name="imgSA"      Grid.Row="2" Grid.Column="6" Margin="2" />
+                <Image x:Name="imgVC"      Grid.Row="3" Grid.Column="6" Margin="2" />
+                <Image x:Name="imgIII"     Grid.Row="4" Grid.Column="6" Margin="2" />
+                <Image x:Name="imgII"      Grid.Row="5" Grid.Column="6" Margin="2" />
                 <Image x:Name="imgCLEOSA"  Grid.Row="6" Grid.Column="6" Margin="2" />
                 <Image x:Name="imgCLEOVC"  Grid.Row="7" Grid.Column="6" Margin="2" />
                 <Image x:Name="imgCLEOIII" Grid.Row="8" Grid.Column="6" Margin="2" />
                 <Image x:Name="imgMOONSDK" Grid.Row="9" Grid.Column="6" Margin="2" />
             </Grid>
-            <Grid Grid.Row="2" Margin="15,0">
+            <Grid Grid.Row="2" Margin="15,34,15,0" VerticalAlignment="Top">
                 <Grid.Resources >
                     <Style TargetType="Button" >
                         <Setter Property="Height" Value="25" />
@@ -222,14 +196,9 @@
                 <Button x:Name="btnUnsetAll" Grid.Column="1" Content="Unset all" Click="btnUnsetAll_Click" />
                 <Button x:Name="btnSetAll" Grid.Column="2" Content="Set all" Click="btnSetAll_Click" />
             </Grid>
-        </Grid>
-        <Grid Grid.Row="2">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-            <Label x:Name="lblSdkSolution" Content="Create Plugin-SDK solution/workspace" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="16"/>
-            <Grid x:Name="grdGenerateSolution" Grid.Row="1" Margin="15,0,20,0" IsEnabled="False">
+            <Label x:Name="lblDX9" Content="DirectX8, DirectX9, rwD3D9 and BASS libraries are available within Plugin-SDK" Margin="0,270,0,0" VerticalAlignment="Top" FontSize="14" Width="640" HorizontalContentAlignment="Center" Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Center"/>
+            <Label x:Name="lblSdkSolution" Content="Create Plugin-SDK solution/workspace:" HorizontalAlignment="Left" Margin="10,72,0,0" VerticalAlignment="Top" FontSize="16" Grid.Row="2"/>
+            <Grid x:Name="grdGenerateSolution" IsEnabled="False" Margin="20,104,20,0" Grid.Row="2" VerticalAlignment="Top">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition/>
@@ -241,14 +210,14 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition />
                 </Grid.RowDefinitions>
-                <Label Grid.Column="0" Content="Development Environment:" Margin="0,5" />
+                <Label Grid.Column="0" Content="Development Environment:" Margin="0,5,0,5" />
                 <ComboBox x:Name="cmbGenerateSlnFor" Grid.Column="1" Margin="2,5,5,5" SelectionChanged="cmbGenerateSlnFor_SelectionChanged" Height="27" Padding="6,5,5,0" >
                     <ComboBoxItem>
                         <WrapPanel>
                             <Button Width="16" Height="16" Margin="0,0,5,0" >
                                 <Button.Template>
                                     <ControlTemplate>
-                                        <Image Source="Icons/vs2022.png"></Image>
+                                        <Image Source="/Icons/vs2022.png"/>
                                     </ControlTemplate>
                                 </Button.Template>
                             </Button>
@@ -260,7 +229,7 @@
                             <Button Width="16" Height="16" Margin="0,0,5,0" >
                                 <Button.Template>
                                     <ControlTemplate>
-                                        <Image Source="Icons/vs2019.png"></Image>
+                                        <Image Source="Icons/vs2019.png"/>
                                     </ControlTemplate>
                                 </Button.Template>
                             </Button>
@@ -272,7 +241,7 @@
                             <Button Width="16" Height="16" Margin="0,0,5,0" >
                                 <Button.Template>
                                     <ControlTemplate>
-                                        <Image Source="Icons/vs2017.png"></Image>
+                                        <Image Source="Icons/vs2017.png"/>
                                     </ControlTemplate>
                                 </Button.Template>
                             </Button>
@@ -284,7 +253,7 @@
                             <Button Width="16" Height="16" Margin="0,0,5,0" >
                                 <Button.Template>
                                     <ControlTemplate>
-                                        <Image Source="Icons/vs2015.png"></Image>
+                                        <Image Source="Icons/vs2015.png"/>
                                     </ControlTemplate>
                                 </Button.Template>
                             </Button>
@@ -296,7 +265,7 @@
                             <Button Width="16" Height="16" Margin="0,0,5,0" >
                                 <Button.Template>
                                     <ControlTemplate>
-                                        <Image Source="Icons/cb.png"></Image>
+                                        <Image Source="/Icons/cb.png"/>
                                     </ControlTemplate>
                                 </Button.Template>
                             </Button>
