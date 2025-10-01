@@ -149,11 +149,18 @@ namespace PluginSdkWizardInstaller {
         private void generateNewPlugin_Click(object sender, RoutedEventArgs e) {
             string sdkDir = GetPluginSdkDir();
             if (sdkDir != "") {
-                string vsixPath = Path.Combine(sdkDir, "tools\\myplugin-gen\\Generate MyPlugin.bat");
-                if (File.Exists(vsixPath))
-                    Process.Start(vsixPath);
+                string vsixPath = Path.Combine(sdkDir, "tools\\myplugin-gen\\");
+                string batFileName = "Generate MyPlugin.bat";
+
+                string fullPathFile = Path.Combine(vsixPath, batFileName);
+                if (File.Exists(fullPathFile)) {
+                    ProcessStartInfo psi = new ProcessStartInfo();
+                    psi.FileName = batFileName;
+                    psi.WorkingDirectory = vsixPath;
+                    Process.Start(psi);
+                }
                 else
-                    MessageBox.Show(String.Format("Can't find '{0}'", vsixPath));
+                    MessageBox.Show(String.Format("Can't find '{0}'", fullPathFile));
             }
         }
         public static void CopyAll(DirectoryInfo source, DirectoryInfo target) {
