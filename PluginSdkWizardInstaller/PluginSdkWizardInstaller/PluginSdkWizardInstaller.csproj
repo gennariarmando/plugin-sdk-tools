@@ -7,7 +7,7 @@
     <ProjectGuid>{849BEE34-DECC-4119-AE15-E183A7F9E8A8}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>PluginSdkWizardInstaller</RootNamespace>
-    <AssemblyName>PluginSdkWizardInstaller</AssemblyName>
+    <AssemblyName>Plugin-SDK_Wizard</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -49,11 +49,12 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>$(PLUGIN_SDK_DIR)\tools\installer\</OutputPath>
+    <OutputPath>$(PLUGIN_SDK_DIR)\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <CustomConstants Condition=" '$(TargetFrameworkVersion)' == 'v4.0' ">NETFW_4</CustomConstants>
     <DefineConstants Condition=" '$(DefineConstants)' != '' And '$(CustomConstants)' != '' ">$(DefineConstants);</DefineConstants>
-    <DefineConstants>$(DefineConstants)$(CustomConstants)</DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
@@ -90,15 +91,6 @@
   <PropertyGroup />
   <PropertyGroup />
   <PropertyGroup />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_fw35|AnyCPU'">
-    <OutputPath>bin\Release_fw35\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Ookii.Dialogs.Wpf, Version=1.0.0.0, Culture=neutral, PublicKeyToken=0c15020868fd6249, processorArchitecture=MSIL">
       <HintPath>..\packages\Ookii.Dialogs.1.0\lib\net35\Ookii.Dialogs.Wpf.dll</HintPath>
@@ -107,6 +99,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -116,8 +109,17 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="BuildConfControl.xaml.cs">
+      <DependentUpon>BuildConfControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="SDKFolders.cs" />
-    <Page Include="FolderInputWindow.xaml">
+    <Compile Include="SdkPathControl.xaml.cs">
+      <DependentUpon>SdkPathControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="TargetPlatformControl.xaml.cs">
+      <DependentUpon>TargetPlatformControl.xaml</DependentUpon>
+    </Compile>
+    <Page Include="BuildConfControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -129,13 +131,18 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="FolderInputWindow.xaml.cs">
-      <DependentUpon>FolderInputWindow.xaml</DependentUpon>
-    </Compile>
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="SdkPathControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="TargetPlatformControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="PathLogic.cs" />
@@ -153,7 +160,6 @@
     </EmbeddedResource>
     <None Include="app.config" />
     <None Include="packages.config" />
-    <None Include="PluginSDK.pfx" />
     <None Include="Properties\app.manifest" />
   </ItemGroup>
   <ItemGroup>
@@ -164,9 +170,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Icons\cb.png" />
     <Resource Include="Icons\error.png" />
-    <Resource Include="Icons\info.png" />
     <Resource Include="Icons\nothing.png" />
     <Resource Include="Icons\notset.png" />
     <Resource Include="Icons\ok.png" />
@@ -179,12 +183,7 @@
     <Resource Include="Icons\psdk.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Icons\cmd.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Icons\vs2015.png" />
-    <Resource Include="Icons\vs2017.png" />
-    <Resource Include="Icons\vs2019.png" />
+    <Resource Include="Icons\warning.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
