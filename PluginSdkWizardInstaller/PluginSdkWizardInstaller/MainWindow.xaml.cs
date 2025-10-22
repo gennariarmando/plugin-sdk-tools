@@ -129,17 +129,10 @@ namespace PluginSdkWizardInstaller
 
         public void AutoDetectPaths()
         {
-            var shortcuts = new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)).GetFiles()
-            .Concat(new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.CommonDesktopDirectory)).GetFiles())
-            .Distinct()
-            .Where(f => (f.Attributes & FileAttributes.Directory) == 0)
-            .Where(f => Path.GetExtension(f.FullName).ToLower() == ".lnk");
+            bool changeCursor = Mouse.OverrideCursor == null;
+            if (changeCursor) Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
 
-            var targets = new List<string>();
-            foreach (var file in shortcuts)
-            {
-                targets.Add(PathLogic.GetShortcutTarget(file.FullName));
-            }
+            var targets = PathLogic.ListUserShortcutTargets();
 
             // recalculate column widths
             foreach (UIElement e in pathsStack.Children)
@@ -174,6 +167,8 @@ namespace PluginSdkWizardInstaller
                     }
                 }
             }
+
+            if (changeCursor) Mouse.OverrideCursor = null;
         }
 
         // update GUI state

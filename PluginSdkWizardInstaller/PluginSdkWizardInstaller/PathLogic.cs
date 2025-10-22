@@ -4,6 +4,8 @@ using System.Windows;
 using System.Diagnostics;
 using System.Windows.Input;
 using System.Security;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace PluginSdkWizardInstaller
 {
@@ -154,6 +156,55 @@ namespace PluginSdkWizardInstaller
             {
                 return "";
             }
+        }
+        
+        public static List<string> ListDirectoryFiles(string dirPath, int deepth = 0)
+        {
+            if (!Directory.Exists(dirPath)) return new List<string>();
+            
+            List<string> fileList = new DirectoryInfo(dirPath).GetFiles().Select(f => f.FullName).ToList();
+
+            if (deepth > 0)
+            {
+                foreach (var d in new DirectoryInfo(dirPath).GetDirectories())
+                {
+                    fileList.AddRange(ListDirectoryFiles(d.FullName, deepth - 1));
+                }
+            }
+
+            fileList = fileList.Distinct().ToList(); // unique only
+            return fileList;
+        }
+        
+        // get list of files pointed by shortcuts on desktop, toolbars etc.
+        public static List<string> ListUserShortcutTargets()
+        {
+            var shortcuts = new List<string>();
+            shortcuts.AddRange(ListDirectoryFiles(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)));
+            shortcuts.AddRange(ListDirectoryFiles(Environment.GetFolderPath(Environment.SpecialFolder.CommonDesktopDirectory)));
+
+            var taskbarPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Microsoft\\Internet Explorer\\Quick Launch");
+            if (Directory.Exists(taskbarPath))
+            {
+                shortcuts.AddRange(ListDirectoryFiles(taskbarPath, 4));
+            }
+
+            shortcuts = shortcuts
+                .Distinct() // unique only
+                .Where(f => Path.GetExtension(f).ToLower() == ".lnk") // *.lnk
+                .ToList(); 
+
+            var targets = new List<string>();
+            foreach (var file in shortcuts)
+            {
+                var t = PathLogic.GetShortcutTarget(file);
+                if (!String.IsNullOrWhiteSpace(t))
+                {
+                    targets.Add(t);
+                }
+            }
+
+            return targets;
         }
     }
 }
