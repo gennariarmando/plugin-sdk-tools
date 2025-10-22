@@ -437,6 +437,12 @@ namespace PluginSdkWizardInstaller
 
             stepGroup_createPluginButtonsGrid.IsEnabled = false;
 
+            foreach (UIElement child in createPluginTargetContainer.Children)
+            {
+                var c = child as TargetPlatformControl;
+                if (c != null) c.Update();
+            }
+
             string name = pluginNameTbx.Text.Trim();
             if (String.IsNullOrWhiteSpace(name))
             {
@@ -467,11 +473,7 @@ namespace PluginSdkWizardInstaller
             foreach (UIElement child in createPluginTargetContainer.Children)
             {
                 var c = child as TargetPlatformControl;
-                if (c != null)
-                {
-                    c.Update();
-                    if (c.IsChecked == true) targetCount++;
-                }
+                if (c != null && c.IsChecked == true) targetCount++;
             }
             
             if (targetCount == 0) stepGroup_createPluginButtonsGrid.ToolTip = "No target game has been selected";

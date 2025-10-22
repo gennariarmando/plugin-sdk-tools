@@ -199,11 +199,6 @@ namespace PluginSdkWizardInstaller
             if (e.Key == Key.Enter) ApplyChanges();
         }
 
-        private void detectBtn_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
         private void infoBtn_Click(object sender, RoutedEventArgs e)
         {
             Process.Start(Data.Info);
