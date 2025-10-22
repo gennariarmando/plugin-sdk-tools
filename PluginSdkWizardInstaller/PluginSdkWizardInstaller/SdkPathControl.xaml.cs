@@ -39,6 +39,8 @@ namespace PluginSdkWizardInstaller
             varNameLbl.Content = Data.EnvVarName?.Replace("_", "__");
 
             readPath = Data.ReadEnvPath();
+            if (readPath == null) readPath = "";
+
             if (!initialized) pathTbx.Text = readPath;
 
             infoBtn.Visibility = String.IsNullOrEmpty(Data.Info) ? Visibility.Collapsed : Visibility.Visible;

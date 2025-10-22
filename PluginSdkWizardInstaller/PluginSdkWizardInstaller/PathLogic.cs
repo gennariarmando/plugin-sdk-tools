@@ -13,41 +13,52 @@ namespace PluginSdkWizardInstaller
     {
         static public string GetOsVariable(string varName)
         {
-            // Check user environment variables.
-            {
-                string userVar = Environment.GetEnvironmentVariable(varName, EnvironmentVariableTarget.User);
+            string value = null;
+            if (value == null) value = Environment.GetEnvironmentVariable(varName, EnvironmentVariableTarget.User);
+            if (value == null) value = Environment.GetEnvironmentVariable(varName, EnvironmentVariableTarget.Machine);
 
-                if (userVar != null)
-                    return userVar;
-            }
-
-            // Check system environment variables.
-            {
-                string globVar = Environment.GetEnvironmentVariable(varName, EnvironmentVariableTarget.Machine);
-
-                if (globVar != null)
-                    return globVar;
-            }
-
-            return ""; // not found
+            return value;
         }
 
         public static void SetOsVariable(string varName, string value)
         {
-            if (String.IsNullOrWhiteSpace(value)) value = null; // unset the variable
+            bool changeCursor = Mouse.OverrideCursor == null;
+            if (changeCursor) Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
 
             try
             {
-                // we want to target the highest place at which the environment variable is already set at
-                string sysValue = Environment.GetEnvironmentVariable(varName, EnvironmentVariableTarget.Machine);
-                var target = (sysValue != null) ? EnvironmentVariableTarget.Machine : EnvironmentVariableTarget.User;
+                if (String.IsNullOrWhiteSpace(value))
+                {
+                    // delete
+                    Environment.SetEnvironmentVariable(varName, null, EnvironmentVariableTarget.User);
+                    Environment.SetEnvironmentVariable(varName, null, EnvironmentVariableTarget.Process);
+                    Environment.SetEnvironmentVariable(varName, null, EnvironmentVariableTarget.Machine);
+                }
+                else
+                {
+                    var hasLocalVar = Environment.GetEnvironmentVariable(varName, EnvironmentVariableTarget.User) != null;
+                    var hasGlobalVar = Environment.GetEnvironmentVariable(varName, EnvironmentVariableTarget.Machine) != null;
+                    
+                    if (hasGlobalVar && !hasLocalVar)
+                    {
+                        Environment.SetEnvironmentVariable(varName, value, EnvironmentVariableTarget.Machine);
+                    }
+                    
+                    if (hasLocalVar || !hasGlobalVar)
+                    {
+                        Environment.SetEnvironmentVariable(varName, value, EnvironmentVariableTarget.User);
+                    }
 
-                Environment.SetEnvironmentVariable(varName, value, target);
+                    // make sure it updated for current process without restarting
+                    Environment.SetEnvironmentVariable(varName, value, EnvironmentVariableTarget.Process);
+                }
             }
             catch (SecurityException)
             {
                 MessageBox.Show("Failed to set system env var \"" + varName + "\" (requires admin rights)", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+
+            if (changeCursor) Mouse.OverrideCursor = null;
         }
 
         static public string GetPluginSdkDir()
