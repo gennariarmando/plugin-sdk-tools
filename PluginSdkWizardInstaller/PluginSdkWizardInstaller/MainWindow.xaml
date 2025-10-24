@@ -137,7 +137,7 @@
 
                         <StackPanel Grid.Column="1" Orientation="Vertical">
                             <Label Content="Additional options"/>
-                            <UniformGrid x:Name="createPluginExtensionContainer" Columns="1"/>
+                            <UniformGrid x:Name="createPluginPropertiesContainer" Columns="1"/>
                         </StackPanel>
                     </Grid>
                     

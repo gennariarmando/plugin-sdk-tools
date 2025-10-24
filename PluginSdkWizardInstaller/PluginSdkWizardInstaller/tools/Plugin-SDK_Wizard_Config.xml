@@ -109,13 +109,13 @@
   <component>
     <name>CLEO plugin</name>
 	<info>The project is CLEO plugin (*.cleo)</info>
-    <targetProperty>CLEO</targetProperty>
+    <targetParam>--type=cleo</targetParam>
   </component>
   
   <component>
-    <name>DirectX 9 support</name>
-	<info>Enable support of D3D9 features in classic GTA 3 and Vice City</info>
-    <targetProperty>D3D</targetProperty>
+    <name>Direct3D support</name>
+	<info>Add support of DirectX 3D</info>
+    <targetParam>--d3d</targetParam>
   </component>
   
 </config>

@@ -43,7 +43,7 @@ namespace PluginSdkWizardInstaller
                     component.Project = c.Element("project")?.Value;
                     component.ProjectOutput = c.Element("projectOutput")?.Value;
                     component.Target = c.Element("target")?.Value;
-                    component.TargetProperty = c.Element("targetProperty")?.Value;
+                    component.TargetProperty = c.Element("targetParam")?.Value;
                     component.Info = c.Element("info")?.Value;
 
                     result.Add(component);

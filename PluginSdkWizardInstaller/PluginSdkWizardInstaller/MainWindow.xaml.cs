@@ -93,7 +93,7 @@ namespace PluginSdkWizardInstaller
                         ToolTip = entry.Info,
                         Tag = entry
                     };
-                    createPluginExtensionContainer.Children.Add(c);
+                    createPluginPropertiesContainer.Children.Add(c);
                 }
             }
             buildConfigurationStack.Children.Add(new Separator());
@@ -481,15 +481,15 @@ namespace PluginSdkWizardInstaller
             return true;
         }
 
-        private static bool generateNewPlugin(string dirPath, string name, List<string> targets)
+        private static bool generateNewPlugin(string dirPath, string name, List<string> args)
         {
             if (!Directory.Exists(dirPath)) Directory.CreateDirectory(dirPath);
 
             string trgStr = "";
-            foreach (var t in targets)
+            foreach (var a in args)
             {
                 if (!String.IsNullOrEmpty(trgStr)) trgStr += " ";
-                trgStr += $"--{t}";
+                trgStr += a;
             }
 
             ProcessStartInfo psi = new ProcessStartInfo
@@ -517,28 +517,28 @@ namespace PluginSdkWizardInstaller
             string name = pluginNameTbx.Text.Trim();
             string projectDir = Path.Combine(PathLogic.GetPluginSdkDir(), "tools\\myplugin-gen\\generated", name);
 
-            var targets = new List<string>();
+            var args = new List<string>();
             foreach (UIElement child in createPluginTargetContainer.Children)
             {
                 var c = child as TargetPlatformControl;
                 if (c != null && c.IsChecked == true)
                 {
-                    targets.Add(c.Data.Target);
+                    args.Add("--" + c.Data.Target);
                 }
             }
 
-            // extensions (provided in same way as targets)
-            foreach (UIElement child in createPluginExtensionContainer.Children)
+            // additional properties
+            foreach (UIElement child in createPluginPropertiesContainer.Children)
             {
                 var c = child as CheckBox;
                 var data = c?.Tag as SdkComponent;
                 if (c != null && c.IsChecked == true && data != null)
                 {
-                    targets.Add(data.TargetProperty);
+                    args.Add(data.TargetProperty);
                 }
             }
 
-            if (generateNewPlugin(projectDir, name, targets))
+            if (generateNewPlugin(projectDir, name, args))
             {
                 Process.Start(projectDir); // open directory in Explorer
             }
