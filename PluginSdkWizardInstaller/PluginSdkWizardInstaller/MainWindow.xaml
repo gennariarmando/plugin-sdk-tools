@@ -5,279 +5,160 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PluginSdkWizardInstaller"
         mc:Ignorable="d"
-        Title="Plugin-SDK Installer v0.8.2" Width="800" Height="600" MinWidth="800" MinHeight="600" Icon="/Icons/packageicon.ico" WindowStartupLocation="CenterScreen" SizeToContent="Manual" WindowState="Normal" BorderThickness="0">
-    <Grid Margin="0,0,0.0,0.0">
-        <Grid>
-            <StackPanel Grid.Row="8" Grid.ColumnSpan="7" Margin="0,0,0,20"/>
-        </Grid>
-        <Grid x:Name="grdWizTmplButtons" IsEnabled="False" Margin="0,4,0,284" VerticalAlignment="Top">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-            <Label x:Name="lblWizTmplButtons" Content="Utilities for new plugins:" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center" FontSize="16" Foreground="Black"/>
-            <Grid Margin="10,47,10,0" Grid.RowSpan="2" VerticalAlignment="Top">
-                <Grid.Resources >
-                    <Style TargetType="Button" >
-                        <Setter Property="Margin" Value="5,5,5,5" />
-                        <Setter Property="Padding" Value="10,6" />
-                    </Style>
-                    <Style TargetType="Image" >
-                        <Setter Property="Width" Value="20" />
-                        <Setter Property="Height" Value="20" />
-                    </Style>
-                    <Style TargetType="Label" >
-                        <Setter Property="Padding" Value="5,5,0,5" />
-                        <Setter Property="FontSize" Value="12" />
-                    </Style>
-                </Grid.Resources>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-                <Button x:Name="btnMyPluginGen" Click="generateNewPlugin_Click" Grid.ColumnSpan="3" Margin="20,2,160,3">
+        Title="Plugin-SDK Wizard v1.0" Width="800" Height="594" MinWidth="400" MinHeight="300" Icon="/Icons/packageicon.ico" WindowStartupLocation="CenterScreen" SizeToContent="Manual" WindowState="Normal" BorderThickness="0"
+        GotKeyboardFocus="Window_GotKeyboardFocus" IsVisibleChanged="Window_IsVisibleChanged">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <ScrollViewer.Resources>
+            <Style TargetType="{x:Type Expander}">
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                <Setter Property="Margin" Value="2,6,2,6"/>
+                <Setter Property="Padding" Value="6"/>
+            </Style>
+        </ScrollViewer.Resources>
+
+        <StackPanel Margin="4">
+            <Image Source="/Icons/psdk.png" Height="30" Margin="0"/>
+
+            <Expander x:Name="stepGroup_envVars">
+                <Expander.Header>
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="/Icons/cmd.png" />
-                        <Image Source="/Icons/vs2022.png" />
-                        <Label Content="Visual Studio (any version)" Foreground="Black" />
+                        <Label Content="1. Setup Plugin-SDK environment variables" FontSize="16" Padding="4, 0"/>
+                        <Image x:Name="stepGroup_envVarsIcon" Height="16"/>
                     </StackPanel>
-                </Button>
-                <Button x:Name="btnCB" Click="installCB_Click" Grid.ColumnSpan="3" Margin="160,2,20,3" Grid.Column="2">
+                </Expander.Header>
+
+                <StackPanel x:Name="pathsStack"/>
+            </Expander>
+
+            <Expander x:Name="stepGroup_generateSolution" IsEnabled="False">
+                <Expander.Header>
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="/Icons/cb.png" />
-                        <Label Content="Code::Blocks" Foreground="Black" />
+                        <Label Content="2. Generate Plugin-SDK project" FontSize="16" Padding="4, 0"/>
+                        <Image x:Name="stepGroup_generateSolutionIcon" Height="16"/>
                     </StackPanel>
-                </Button>
-            </Grid>
-            <Image Source="/Icons/psdk.png" Margin="0,0,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Height="34" Width="215" />
-        </Grid>
-        <Grid Margin="0,84,0,0" VerticalAlignment="Top" Height="527">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-            <Label x:Name="lblSetupEnvVars" Content="Setup Plugin-SDK environment variables:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="16"/>
-            <Grid x:Name="grdEnvVars" Grid.Row="1" Margin="15,0">
-                <Grid.Resources >
-                    <Style TargetType="Button" >
-                        <Setter Property="Width" Value="30" />
-                        <Setter Property="Height" Value="23" />
-                        <Setter Property="Margin" Value="2,2,2,2" />
-                    </Style>
-                    <Style TargetType="Image" >
-                        <Setter Property="Width" Value="16" />
-                        <Setter Property="Height" Value="16" />
-                    </Style>
-                    <Style TargetType="Label" >
-                        <Setter Property="Padding" Value="5,5,5,5" />
-                    </Style>
-                    <Style TargetType="TextBox" >
-                        <Setter Property="Height" Value="23" />
-                        <Setter Property="Margin" Value="2,2,2,2" />
-                    </Style>
-                </Grid.Resources>
-                <Grid.RowDefinitions>
-                    <RowDefinition />
-                    <RowDefinition />
-                    <RowDefinition />
-                    <RowDefinition />
-                    <RowDefinition />
-                    <RowDefinition />
-                    <RowDefinition />
-                    <RowDefinition />
-                    <RowDefinition />
-                    <RowDefinition />
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+                </Expander.Header>
+                <Grid local:GridSpacingSetter.Spacing="3,3,3,3" ToolTipService.ShowOnDisabled="True">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
 
-                <Label x:Name="lblSDK"     Grid.Row="0" Content="Plugin-SDK folder (PLUGIN__SDK__DIR)" />
-                <Label x:Name="lblIV"      Grid.Row="1" Content="GTA IV folder (GTA__IV__DIR)" />
-                <Label x:Name="lblSA"      Grid.Row="2" Content="GTA San Andreas folder (GTA__SA__DIR)" />
-                <Label x:Name="lblVC"      Grid.Row="3" Content="GTA Vice City folder (GTA__VC__DIR)" />
-                <Label x:Name="lblIII"     Grid.Row="4" Content="GTA 3 folder (GTA__III__DIR)" />
-                <Label x:Name="lblII"      Grid.Row="5" Content="GTA 2 folder (GTA__II__DIR)" />
-                <Label x:Name="lblCLEOSA"  Grid.Row="6" Content="CLEO SDK (GTA SA) folder (CLEO__SDK__SA__DIR)" />
-                <Label x:Name="lblCLEOVC"  Grid.Row="7" Content="CLEO SDK (GTA VC) folder (CLEO__SDK__VC__DIR)" />
-                <Label x:Name="lblCLEOIII" Grid.Row="8" Content="CLEO SDK (GTA 3) folder (CLEO__SDK__III__DIR)" />
-                <Label x:Name="lblMOONSDK" Grid.Row="9" Content="MoonLoader SDK folder (MOONLOADER__SDK__SA__DIR)" />
+                    <Button Grid.Column="1" Click="btnGenerateSlnVS_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Height="16" Source="/Icons/vs2022.png"/>
+                            <Label Content="Visual Studio"/>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </Expander>
 
-                <TextBox x:Name="tbxSDK"     Grid.Row="0" Grid.Column="1" TextChanged="tbx_TextChanged" />
-                <TextBox x:Name="tbxIV"      Grid.Row="1" Grid.Column="1" TextChanged="tbx_TextChanged" />
-                <TextBox x:Name="tbxSA"      Grid.Row="2" Grid.Column="1" TextChanged="tbx_TextChanged" />
-                <TextBox x:Name="tbxVC"      Grid.Row="3" Grid.Column="1" TextChanged="tbx_TextChanged" />
-                <TextBox x:Name="tbxIII"     Grid.Row="4" Grid.Column="1" TextChanged="tbx_TextChanged" />
-                <TextBox x:Name="tbxII"      Grid.Row="5" Grid.Column="1" TextChanged="tbx_TextChanged" />
-                <TextBox x:Name="tbxCLEOSA"  Grid.Row="6" Grid.Column="1" TextChanged="tbx_TextChanged" />
-                <TextBox x:Name="tbxCLEOVC"  Grid.Row="7" Grid.Column="1" TextChanged="tbx_TextChanged" />
-                <TextBox x:Name="tbxCLEOIII" Grid.Row="8" Grid.Column="1" TextChanged="tbx_TextChanged" />
-                <TextBox x:Name="tbxMOONSDK" Grid.Row="9" Grid.Column="1" TextChanged="tbx_TextChanged" />
-                <Button x:Name="infCLEOSA"   Grid.Row="6" Grid.Column="2" ToolTip="Get more information about CLEO SDK for GTA San Andreas" Tag="http://cleo.li/download.html" Click="inf_Click" >
-                    <Image Source="/Icons/info.png" />
-                </Button>
-                <Button x:Name="infCLEOVC" Grid.Row="7" Grid.Column="2" ToolTip="Get more information about CLEO SDK for GTA Vice City" Tag="http://gtaforums.com/topic/807185-cleo-20/" Click="inf_Click" >
-                    <Image Source="/Icons/info.png" />
-                </Button>
-                <Button x:Name="infCLEOIII" Grid.Row="8" Grid.Column="2" ToolTip="Get more information about CLEO SDK for GTA 3" Tag="http://gtaforums.com/topic/807185-cleo-20/" Click="inf_Click" >
-                    <Image Source="/Icons/info.png" />
-                </Button>
-                <Button x:Name="infMOONSDK" Grid.Row="9" Grid.Column="2" ToolTip="Get more information about MoonLoader SDK" Tag="https://blast.hk/threads/18061/" Click="inf_Click" >
-                    <Image Source="/Icons/info.png" />
-                </Button>
+            <Expander x:Name="stepGroup_build" IsEnabled="False">
+                <Expander.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="3. Build Plugin-SDK binaries" FontSize="16" Padding="4, 0"/>
+                        <Image x:Name="stepGroup_buildIcon" Height="16"/>
+                    </StackPanel>
+                </Expander.Header>
 
-                <Button x:Name="autSDK"     Grid.Row="0" Grid.Column="3" Content="A" Click="autBtn_Click" ToolTip="Auto-detect" IsEnabled="True" />
-                <Button x:Name="autIV"      Grid.Row="1" Grid.Column="3" Content="A" Click="autBtn_Click" ToolTip="Auto-detect" IsEnabled="True" />
-                <Button x:Name="autSA"      Grid.Row="2" Grid.Column="3" Content="A" Click="autBtn_Click" ToolTip="Auto-detect" IsEnabled="True" />
-                <Button x:Name="autVC"      Grid.Row="3" Grid.Column="3" Content="A" Click="autBtn_Click" ToolTip="Auto-detect" IsEnabled="True" />
-                <Button x:Name="autIII"     Grid.Row="4" Grid.Column="3" Content="A" Click="autBtn_Click" ToolTip="Auto-detect" IsEnabled="True" />
-                <Button x:Name="autII"      Grid.Row="5" Grid.Column="3" Content="A" Click="autBtn_Click" ToolTip="Auto-detect" IsEnabled="True" />
-                <Button x:Name="autCLEOSA"  Grid.Row="6" Grid.Column="3" Content="A" Click="autBtn_Click" ToolTip="Auto-detect" IsEnabled="True" />
-                <Button x:Name="autCLEOVC"  Grid.Row="7" Grid.Column="3" Content="A" Click="autBtn_Click" ToolTip="Auto-detect" IsEnabled="True" />
-                <Button x:Name="autCLEOIII" Grid.Row="8" Grid.Column="3" Content="A" Click="autBtn_Click" ToolTip="Auto-detect" IsEnabled="True" />
-                <Button x:Name="autMOONSDK" Grid.Row="9" Grid.Column="3" Content="A" Click="autBtn_Click" ToolTip="Auto-detect" IsEnabled="True" />
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
 
-                <Button x:Name="brwSDK"     Grid.Row="0" Grid.Column="4" Content="..." ToolTip="Browse..." Click="brwBtn_Click" />
-                <Button x:Name="brwIV"      Grid.Row="1" Grid.Column="4" Content="..." ToolTip="Browse..." Click="brwBtn_Click" />
-                <Button x:Name="brwSA"      Grid.Row="2" Grid.Column="4" Content="..." ToolTip="Browse..." Click="brwBtn_Click" />
-                <Button x:Name="brwVC"      Grid.Row="3" Grid.Column="4" Content="..." ToolTip="Browse..." Click="brwBtn_Click" />
-                <Button x:Name="brwIII"     Grid.Row="4" Grid.Column="4" Content="..." ToolTip="Browse..." Click="brwBtn_Click" />
-                <Button x:Name="brwII"      Grid.Row="5" Grid.Column="4" Content="..." ToolTip="Browse..." Click="brwBtn_Click" />
-                <Button x:Name="brwCLEOSA"  Grid.Row="6" Grid.Column="4" Content="..." ToolTip="Browse..." Click="brwBtn_Click" />
-                <Button x:Name="brwCLEOVC"  Grid.Row="7" Grid.Column="4" Content="..." ToolTip="Browse..." Click="brwBtn_Click" />
-                <Button x:Name="brwCLEOIII" Grid.Row="8" Grid.Column="4" Content="..." ToolTip="Browse..." Click="brwBtn_Click" />
-                <Button x:Name="brwMOONSDK" Grid.Row="9" Grid.Column="4" Content="..." ToolTip="Browse..." Click="brwBtn_Click" />
+                        <Label Content="Target game"            Grid.Row="0" Grid.Column="0"/>
+                        <Label Content="Debug configuration"    Grid.Row="0" Grid.Column="1"/>
+                        <Label Content="Release configuration"  Grid.Row="0" Grid.Column="2"/>
+                    </Grid>
 
-                <Button x:Name="setSDK"     Grid.Row="0" Grid.Column="5" Content="Set" Width="50" IsEnabled="False" Click="setBtn_Click" Tag="PLUGIN_SDK_DIR" />
-                <Button x:Name="setIV"      Grid.Row="1" Grid.Column="5" Content="Set" Width="50" IsEnabled="False" Click="setBtn_Click" Tag="GTA_IV_DIR" />
-                <Button x:Name="setSA"      Grid.Row="2" Grid.Column="5" Content="Set" Width="50" IsEnabled="False" Click="setBtn_Click" Tag="GTA_SA_DIR" />
-                <Button x:Name="setVC"      Grid.Row="3" Grid.Column="5" Content="Set" Width="50" IsEnabled="False" Click="setBtn_Click" Tag="GTA_VC_DIR" />
-                <Button x:Name="setIII"     Grid.Row="4" Grid.Column="5" Content="Set" Width="50" IsEnabled="False" Click="setBtn_Click" Tag="GTA_III_DIR" />
-                <Button x:Name="setII"      Grid.Row="5" Grid.Column="5" Content="Set" Width="50" IsEnabled="False" Click="setBtn_Click" Tag="GTA_II_DIR" />
-                <Button x:Name="setCLEOSA"  Grid.Row="6" Grid.Column="5" Content="Set" Width="50" IsEnabled="False" Click="setBtn_Click" Tag="CLEO_SDK_SA_DIR" />
-                <Button x:Name="setCLEOVC"  Grid.Row="7" Grid.Column="5" Content="Set" Width="50" IsEnabled="False" Click="setBtn_Click" Tag="CLEO_SDK_VC_DIR" />
-                <Button x:Name="setCLEOIII" Grid.Row="8" Grid.Column="5" Content="Set" Width="50" IsEnabled="False" Click="setBtn_Click" Tag="CLEO_SDK_III_DIR" />
-                <Button x:Name="setMOONSDK" Grid.Row="9" Grid.Column="5" Content="Set" Width="50" IsEnabled="False" Click="setBtn_Click" Tag="MOONLOADER_SDK_SA_DIR" />
+                    <StackPanel x:Name="buildConfigurationStack"/>
 
-                <Image x:Name="imgSDK"     Grid.Row="0" Grid.Column="6" Margin="2" />
-                <Image x:Name="imgIV"      Grid.Row="1" Grid.Column="6" Margin="2" />
-                <Image x:Name="imgSA"      Grid.Row="2" Grid.Column="6" Margin="2" />
-                <Image x:Name="imgVC"      Grid.Row="3" Grid.Column="6" Margin="2" />
-                <Image x:Name="imgIII"     Grid.Row="4" Grid.Column="6" Margin="2" />
-                <Image x:Name="imgII"      Grid.Row="5" Grid.Column="6" Margin="2" />
-                <Image x:Name="imgCLEOSA"  Grid.Row="6" Grid.Column="6" Margin="2" />
-                <Image x:Name="imgCLEOVC"  Grid.Row="7" Grid.Column="6" Margin="2" />
-                <Image x:Name="imgCLEOIII" Grid.Row="8" Grid.Column="6" Margin="2" />
-                <Image x:Name="imgMOONSDK" Grid.Row="9" Grid.Column="6" Margin="2" />
-            </Grid>
-            <Grid Grid.Row="2" Margin="15,34,15,0" VerticalAlignment="Top">
-                <Grid.Resources >
-                    <Style TargetType="Button" >
-                        <Setter Property="Height" Value="25" />
-                        <Setter Property="Margin" Value="4,4,4,4" />
-                    </Style>
-                </Grid.Resources>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-                <Button x:Name="btnAutoDetectAll" Grid.Column="0" Content="Auto-detect all" IsEnabled="True" Click="btnAutoDetectAll_Click" />
-                <Button x:Name="btnUnsetAll" Grid.Column="1" Content="Unset all" Click="btnUnsetAll_Click" />
-                <Button x:Name="btnSetAll" Grid.Column="2" Content="Set all" Click="btnSetAll_Click" />
-            </Grid>
-            <Label x:Name="lblDX9" Content="DirectX8, DirectX9, rwD3D9 and BASS libraries are available within Plugin-SDK" Margin="0,270,0,0" VerticalAlignment="Top" FontSize="14" Width="640" HorizontalContentAlignment="Center" Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Center"/>
-            <Label x:Name="lblSdkSolution" Content="Create Plugin-SDK solution/workspace:" HorizontalAlignment="Left" Margin="10,72,0,0" VerticalAlignment="Top" FontSize="16" Grid.Row="2"/>
-            <Grid x:Name="grdGenerateSolution" IsEnabled="False" Margin="20,104,20,0" Grid.Row="2" VerticalAlignment="Top">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition />
-                </Grid.RowDefinitions>
-                <Label Grid.Column="0" Content="Development Environment:" Margin="0,5,0,5" />
-                <ComboBox x:Name="cmbGenerateSlnFor" Grid.Column="1" Margin="2,5,5,5" SelectionChanged="cmbGenerateSlnFor_SelectionChanged" Height="27" Padding="6,5,5,0" >
-                    <ComboBoxItem>
-                        <WrapPanel>
-                            <Button Width="16" Height="16" Margin="0,0,5,0" >
-                                <Button.Template>
-                                    <ControlTemplate>
-                                        <Image Source="/Icons/vs2022.png"/>
-                                    </ControlTemplate>
-                                </Button.Template>
-                            </Button>
-                            <TextBlock Text="Visual Studio 2022" />
-                        </WrapPanel>
-                    </ComboBoxItem>
-                    <ComboBoxItem>
-                        <WrapPanel>
-                            <Button Width="16" Height="16" Margin="0,0,5,0" >
-                                <Button.Template>
-                                    <ControlTemplate>
-                                        <Image Source="Icons/vs2019.png"/>
-                                    </ControlTemplate>
-                                </Button.Template>
-                            </Button>
-                            <TextBlock Text="Visual Studio 2019" />
-                        </WrapPanel>
-                    </ComboBoxItem>
-                    <ComboBoxItem>
-                        <WrapPanel>
-                            <Button Width="16" Height="16" Margin="0,0,5,0" >
-                                <Button.Template>
-                                    <ControlTemplate>
-                                        <Image Source="Icons/vs2017.png"/>
-                                    </ControlTemplate>
-                                </Button.Template>
-                            </Button>
-                            <TextBlock Text="Visual Studio 2017" />
-                        </WrapPanel>
-                    </ComboBoxItem>
-                    <ComboBoxItem>
-                        <WrapPanel>
-                            <Button Width="16" Height="16" Margin="0,0,5,0" >
-                                <Button.Template>
-                                    <ControlTemplate>
-                                        <Image Source="Icons/vs2015.png"/>
-                                    </ControlTemplate>
-                                </Button.Template>
-                            </Button>
-                            <TextBlock Text="Visual Studio 2015" />
-                        </WrapPanel>
-                    </ComboBoxItem>
-                    <ComboBoxItem>
-                        <WrapPanel>
-                            <Button Width="16" Height="16" Margin="0,0,5,0" >
-                                <Button.Template>
-                                    <ControlTemplate>
-                                        <Image Source="/Icons/cb.png"/>
-                                    </ControlTemplate>
-                                </Button.Template>
-                            </Button>
-                            <TextBlock Text="Code::Blocks" />
-                        </WrapPanel>
-                    </ComboBoxItem>
-                </ComboBox>
-                <CheckBox x:Name="chkSlnWinXpSupport" Grid.Column="2" Content="Windows XP Support" IsEnabled="False" VerticalAlignment="Center" Margin="10,0,10,0" Checked="chkSlnWinXpSupport_Changed" Unchecked="chkSlnWinXpSupport_Changed" />
-                <Button x:Name="btnGenerateSln" Grid.Column="3" Width="100" Height="27" Content="Generate" Margin="5" IsEnabled="False" Click="btnGenerateSln_Click" />
-                <Button x:Name="btnBuildSln" Grid.Column="4" Width="100" Height="27" Content="Build" Margin="5,5,0,5" IsEnabled="False" Click="btnBuildSln_Click" />
-                <Label x:Name="lblSlnNote" Grid.Row="2" Grid.Column="1" Padding="0" Visibility="Hidden" />
-            </Grid>
-        </Grid>
-    </Grid>
+                    <Grid x:Name="stepGroup_buildButtonsGrid" local:GridSpacingSetter.Spacing="3,3,3,3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+
+                        <Button Click="stepGroup_buildVsBtnClick" Grid.Column="1">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Height="16" Source="/Icons/vs2022.png"/>
+                                <Label Content="Visual Studio"/>
+                                <Label x:Name="stepGroup_buildVsBtnLbl" Content="(0)"/>
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+                </StackPanel>
+            </Expander>
+
+            <Expander x:Name="stepGroup_createPlugin" IsEnabled="False">
+                <Expander.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="4. Create your new plugin project" FontSize="16" Padding="4, 0"/>
+                        <Image x:Name="stepGroup_createPluginIcon" Height="16"/>
+                    </StackPanel>
+                </Expander.Header>
+                <Grid local:GridSpacingSetter.Spacing="3,3,3,3">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0" x:Name="pluginNameGrp">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Label   Grid.Column="0" Content="Plugin name"/>
+                        <TextBox Grid.Column="1" x:Name="pluginNameTbx" Text="MyPlugin" TextChanged="pluginNameTbx_TextChanged"/>
+                        <Image   Grid.Column="2" x:Name="pluginNameStatusImg" Height="16" Source="/Icons/nothing.png"/>
+                    </Grid>
+
+                    <Separator Grid.Row="1"/>
+
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Orientation="Vertical">
+                            <Label Content="Target games"/>
+                            <UniformGrid Grid.Row="3" x:Name="createPluginTargetContainer" Columns="1"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Orientation="Vertical">
+                            <Label Content="Additional options"/>
+                            <UniformGrid x:Name="createPluginPropertiesContainer" Columns="1"/>
+                        </StackPanel>
+                    </Grid>
+                    
+                    <Separator Grid.Row="3"/>
+
+                    <Grid Grid.Row="4" x:Name="stepGroup_createPluginButtonsGrid" ToolTipService.ShowOnDisabled="True">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+
+                        <Button Click="stepGroup_createPluginVsBtnClick" Grid.Column="1">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Height="16" Source="/Icons/vs2022.png"/>
+                                <Label Content="Visual Studio"/>
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+                </Grid>
+            </Expander>
+        </StackPanel>
+    </ScrollViewer>
 </Window>

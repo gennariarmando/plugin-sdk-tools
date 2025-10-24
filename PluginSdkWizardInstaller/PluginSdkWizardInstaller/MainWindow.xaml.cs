@@ -4,469 +4,551 @@ using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using System.IO;
 using System.Diagnostics;
-using System.Security;
-using Ookii.Dialogs.Wpf;
-using System.ComponentModel;
+using System.Collections.Generic;
+using System.Windows.Input;
+using System.Linq;
 
-namespace PluginSdkWizardInstaller {
-    public partial class MainWindow : Window {
-        private BitmapImage iconError;
-        private BitmapImage iconOk;
-        private BitmapImage iconNothing;
-        private BitmapImage iconNotSet;
+namespace PluginSdkWizardInstaller
+{
+    public partial class MainWindow : Window
+    {
+        public static BitmapImage iconError;
+        public static BitmapImage iconWarning;
+        public static BitmapImage iconOk;
+        public static BitmapImage iconNothing;
+        public static BitmapImage iconNotSet;
 
-        enum DevEnv { NONE = -1, VS2022, VS2019, VS2017, VS2015, CODEBLOCKS };
+        public static List<SdkComponent> components;
 
-        private string[] varIdents =
+        private static BitmapImage GetIcon(string iconName)
         {
-            "SDK",
-            "IV", "SA", "VC", "III", "II",
-            "CLEOSA", "CLEOVC", "CLEOIII",
-            "MOONSDK"
-        };
-
-        private class PathConfigRow
-        {
-            public TextBox tbx;
-            public Button aut;
-            public Button set;
-        };
-        private PathConfigRow[] pathConfigs;
-
-        public MainWindow() {
-            InitializeComponent();
-            iconError = GetIcon("error.png");
-            iconOk = GetIcon("ok.png");
-            iconNothing = GetIcon("nothing.png");
-            iconNotSet = GetIcon("notset.png");
-            pathConfigs = new PathConfigRow[varIdents.Length];
-            int n = 0;
-            foreach ( string ident in varIdents )
-            {
-                PathConfigRow row = new PathConfigRow();
-                row.tbx = FindName( "tbx" + ident ) as TextBox;
-                row.aut = FindName( "aut" + ident ) as Button;
-                row.set = FindName( "set" + ident ) as Button;
-                pathConfigs[ n++ ] = row;
-            }
-            foreach ( PathConfigRow row in pathConfigs )
-            {
-                SetTextBoxTextToOsVariable(row.tbx);
-            }
-        }
-
-        private bool CompareLowerCase(string strA, string strB) {
-            return strA.ToLower() == strB.ToLower();
-        }
-
-        private string WithoutTrailingSlash(string src) {
-            if (src.EndsWith("\\") || src.EndsWith("/"))
-                return src.Remove(src.Length - 1);
-            return src;
-        }
-
-        private BitmapImage GetIcon(string iconName) {
             return new BitmapImage(new Uri("/Icons/" + iconName, UriKind.RelativeOrAbsolute));
         }
 
-        private object GetElement(object baseElement, string name) {
-            FrameworkElement frameworkElement = baseElement as FrameworkElement;
-            FrameworkElement parent = frameworkElement.Parent as FrameworkElement;
-            string newName = name + frameworkElement.Name.Substring(3);
-            return parent.FindName(newName);
-        }
-
-        private void SetTextBoxTextToOsVariable(TextBox tbx) {
-            bool isSdk = tbx.Name == "tbxSDK";
-            Button setBtn = GetElement(tbx, "set") as Button;
-            Image img = GetElement(tbx, "img") as Image;
-            string envVar = PathLogic.GetOsVariable(setBtn.Tag.ToString());
-            tbx.Tag = envVar;
-            tbx.Text = envVar;
-            if (envVar == "") {
-                if (isSdk)
-                    img.Source = iconError;
-                else
-                    img.Source = iconNothing;
-            }
-            else {
-                if (isSdk) {
-                    grdWizTmplButtons.IsEnabled = true;
-                    grdGenerateSolution.IsEnabled = true;
-                }
-                img.Source = iconOk;
-            }
-
-        }
-
-        private void tbx_TextChanged(object sender, TextChangedEventArgs e) {
-            TextBox tbx = sender as TextBox;
-            Button setButton = GetElement(sender, "set") as Button;
-            Image img = GetElement(sender, "img") as Image;
-            string envVar = tbx.Tag.ToString();
-            if (!String.IsNullOrEmpty(tbx.Text) && !CompareLowerCase(tbx.Text, envVar)) {
-                setButton.IsEnabled = true;
-                img.Source = iconNotSet;
-            }
-            else {
-                setButton.IsEnabled = false;
-                if (envVar != "")
-                    img.Source = iconOk;
-                else {
-                    if (tbx.Name == "tbxSDK")
-                        img.Source = iconError;
-                    else
-                        img.Source = iconNothing;
-                }
-            }
-        }
-
-        private void inf_Click(object sender, RoutedEventArgs e) {
-            Button inf = sender as Button;
-            Process.Start(inf.Tag.ToString());
-        }
-
-        private void installVsWizard_Click(object sender, RoutedEventArgs e) {
-            Button vsBtn = sender as Button;
-            if (vsBtn.Name == "btnVs2022")
-                cmbGenerateSlnFor.SelectedIndex = (int)DevEnv.VS2022;
-            else if (vsBtn.Name == "btnVs2019")
-                cmbGenerateSlnFor.SelectedIndex = (int)DevEnv.VS2019;
-            else if (vsBtn.Name == "btnVs2017")
-                cmbGenerateSlnFor.SelectedIndex = (int)DevEnv.VS2017;
-            else if (vsBtn.Name == "btnVs2015")
-                cmbGenerateSlnFor.SelectedIndex = (int)DevEnv.VS2015;
-            string sdkDir = GetPluginSdkDir();
-            if (sdkDir != "") {
-                string vsixPath = Path.Combine(sdkDir, "tools\\general\\PluginSdkVsTools.vsix");
-                if (File.Exists(vsixPath))
-                    Process.Start(vsixPath);
-                else
-                    MessageBox.Show(String.Format("Can't find '{0}'", vsixPath));
-            }   
-        }
-
-        private void generateNewPlugin_Click(object sender, RoutedEventArgs e) {
-            string sdkDir = GetPluginSdkDir();
-            if (sdkDir != "") {
-                string vsixPath = Path.Combine(sdkDir, "tools\\myplugin-gen\\");
-                string batFileName = "Generate MyPlugin.bat";
-
-                string fullPathFile = Path.Combine(vsixPath, batFileName);
-                if (File.Exists(fullPathFile)) {
-                    ProcessStartInfo psi = new ProcessStartInfo();
-                    psi.FileName = batFileName;
-                    psi.WorkingDirectory = vsixPath;
-                    Process.Start(psi);
-                }
-                else
-                    MessageBox.Show(String.Format("Can't find '{0}'", fullPathFile));
-            }
-        }
-        public static void CopyAll(DirectoryInfo source, DirectoryInfo target) {
-            Directory.CreateDirectory(target.FullName);
-            foreach (FileInfo fi in source.GetFiles())
-                fi.CopyTo(Path.Combine(target.FullName, fi.Name), true);
-            foreach (DirectoryInfo diSourceSubDir in source.GetDirectories()) {
-                DirectoryInfo nextTargetSubDir =
-                    target.CreateSubdirectory(diSourceSubDir.Name);
-                CopyAll(diSourceSubDir, nextTargetSubDir);
-            }
-        }
-
-        static private string GetPluginSdkDir()
+        public MainWindow()
         {
-            string sdkDir = PathLogic.GetOsVariable("PLUGIN_SDK_DIR");
-            if (sdkDir == "")
-                MessageBox.Show("Can't find plugin-sdk directory (PLUGIN_SDK_DIR)");
-            return sdkDir;
+            InitializeComponent();
+            iconError = GetIcon("error.png");
+            iconWarning = GetIcon("warning.png");
+            iconOk = GetIcon("ok.png");
+            iconNothing = GetIcon("nothing.png");
+            iconNotSet = GetIcon("notset.png");
+
+            components = SdkComponent.LoadFromFile("tools\\Plugin-SDK_Wizard_Config.xml");
+            if (components.Count == 0)
+            {
+                System.Windows.Application.Current.Shutdown();
+                return;
+            }
+
+            bool prevWasBuildable = false;
+            foreach (var entry in components)
+            {
+                var binary = entry.ProjectOutput;
+                var isBuildable = !String.IsNullOrEmpty(binary);
+
+                // env variables
+                if (!String.IsNullOrEmpty(entry.EnvVarName))
+                {
+                    if (isBuildable != prevWasBuildable) pathsStack.Children.Add(new Separator());
+
+                    var pathEdit = new SdkPathControl { Data = entry };
+                    pathEdit.Update();
+                    pathEdit.UpdateColumnsWidth();
+                    pathEdit.DataChanged += new EventHandler(delegate (Object o, EventArgs a) { Update(); });
+                    pathsStack.Children.Add(pathEdit);
+
+                    prevWasBuildable = isBuildable;
+                }
+
+                // plugin build configurations
+                if (isBuildable)
+                {
+                    buildConfigurationStack.Children.Add(new Separator());
+
+                    var config = new BuildConfControl { Data = entry };
+                    config.ChoiceChanged += new EventHandler(delegate (Object o, EventArgs a) { UpdatePanelBuild(); });
+                    buildConfigurationStack.Children.Add(config);
+                }
+
+                // new plugin target games
+                if (!String.IsNullOrEmpty(entry.Target))
+                {
+                    var c = new TargetPlatformControl
+                    {
+                        Margin = new Thickness(3, 6, 3, 6),
+                        Data = entry
+                    };
+                    c.ChoiceChanged += new EventHandler(delegate (object o, EventArgs e) { UpdatePanelCreatePlugin(); });
+                    createPluginTargetContainer.Children.Add(c);
+                }
+
+                // new plugin extensions
+                if (!String.IsNullOrEmpty(entry.TargetProperty))
+                {
+                    var c = new CheckBox
+                    {
+                        Margin = new Thickness(3, 6, 3, 6),
+                        Content = entry.Name,
+                        ToolTip = entry.Info,
+                        Tag = entry
+                    };
+                    createPluginPropertiesContainer.Children.Add(c);
+                }
+            }
+            buildConfigurationStack.Children.Add(new Separator());
+
+            // recalculate column widths
+            foreach (UIElement e in pathsStack.Children)
+            {
+                var c = e as SdkPathControl;
+                if (c != null) c.UpdateColumnsWidth();
+            }
         }
 
-        private void installCB_Click(object sender, RoutedEventArgs e) {
-            cmbGenerateSlnFor.SelectedIndex = (int)DevEnv.CODEBLOCKS;
-            FolderInputWindow dlg = new FolderInputWindow("Select Code::Blocks folder");
-            dlg.Owner = this;
-            dlg.ShowDialog();
-            if (dlg.DialogResult == true) {
-                string sdkDir = GetPluginSdkDir();
-                if (sdkDir != "") {
-                    string installerPath = Path.Combine(sdkDir, "tools\\general\\code-blocks-wizard-installer.exe");
-                    if (File.Exists(installerPath)) {
-                        ProcessStartInfo info = new ProcessStartInfo(installerPath);
-                        info.Arguments = '"' + WithoutTrailingSlash(dlg.txbFolder.Text) + '"' + ' ' + '"' + sdkDir + '"';
-                        info.UseShellExecute = false;
-                        info.Verb = "runas";
-                        try {
-                            Process.Start(info);
-                        }
-                        catch (Win32Exception) {
+        private bool WindowInitialized = false;
+        private void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (IsVisible && !WindowInitialized)
+            {
+                if (String.IsNullOrEmpty(PathLogic.GetPluginSdkDir()))
+                {
+                    AutoDetectPaths();
+                }
+
+                Update(true);
+
+                WindowInitialized = true;
+            }
+        }
+
+        private void Window_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            if (WindowInitialized) Update();
+        }
+
+        public void AutoDetectPaths()
+        {
+            bool changeCursor = Mouse.OverrideCursor == null;
+            if (changeCursor) Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
+
+            var targets = PathLogic.ListUserShortcutTargets();
+
+            // recalculate column widths
+            foreach (UIElement e in pathsStack.Children)
+            {
+                var c = e as SdkPathControl;
+                if (c == null) continue;
+
+                if (!String.IsNullOrWhiteSpace(c.Data.EnvVarName) && String.IsNullOrWhiteSpace(c.Data.ReadEnvPath())) // not set yet
+                {
+                    if (c.Data.EnvVarName == "PLUGIN_SDK_DIR")
+                    {
+                        c.SetPath(System.Environment.CurrentDirectory); // this wizard app is supposed to be in PSDK's root dir)
+                        continue;
+                    }
+
+                    if (!String.IsNullOrWhiteSpace(c.Data.CheckFile))
+                    {
+                        var pattern = c.Data.CheckFile.ToLower();
+                        foreach (var path in targets)
+                        {
+                            if (path.ToLower().EndsWith(pattern))
+                            {
+                                // make sure we not matched just suffix of the filename
+                                var ch = path.Length > pattern.Length ? path[path.Length - pattern.Length - 1] : Path.DirectorySeparatorChar;
+                                if (ch == Path.DirectorySeparatorChar || ch == Path.AltDirectorySeparatorChar)
+                                {
+                                    var dir = path.Substring(0, path.Length - pattern.Length);
+                                    c.SetPath(dir);
+                                }
+                            }
                         }
                     }
-                    else
-                        MessageBox.Show(String.Format("Can't find '{0}'", installerPath));
                 }
             }
+
+            if (changeCursor) Mouse.OverrideCursor = null;
         }
 
-        private void brwBtn_Click(object sender, RoutedEventArgs e) {
-            Button btn = sender as Button;
-            TextBox tbx = GetElement(sender, "tbx") as TextBox;
-            Label lbl = GetElement(sender, "lbl") as Label;
-            VistaFolderBrowserDialog dialog = new VistaFolderBrowserDialog();
-            dialog.ShowNewFolderButton = true;
-            dialog.Description = String.Format("Select location: {0}", lbl.Content);
-            dialog.UseDescriptionForTitle = true;
-            if (dialog.ShowDialog() == true && !String.IsNullOrEmpty(dialog.SelectedPath))
-                tbx.Text = dialog.SelectedPath;
-        }
-
-        private static EnvironmentVariableTarget GetEnvVarRecommendedTarget( string envVarName )
+        // update GUI state
+        public void Update(bool folding = false)
         {
-            // We want to target the highest place at which the environment variable is already set at.
+            if (UpdateInProgress) return;
+            UpdateInProgress = true;
 
-            // Try system level.
+            if (folding) stepGroup_envVars.IsExpanded = false;
+            stepGroup_envVarsIcon.Source = null;
+            stepGroup_envVarsIcon.ToolTip = null;
+
+            if (folding) stepGroup_generateSolution.IsExpanded = false;
+            stepGroup_generateSolution.IsEnabled = false;
+            stepGroup_generateSolutionIcon.Source = null;
+            stepGroup_generateSolutionIcon.ToolTip = null;
+
+            if (folding) stepGroup_build.IsExpanded = false;
+            stepGroup_build.IsEnabled = false;
+            stepGroup_buildIcon.Source = null;
+            stepGroup_buildIcon.ToolTip = null;
+
+            if (folding) stepGroup_createPlugin.IsExpanded = false;
+            stepGroup_createPlugin.IsEnabled = false;
+            stepGroup_createPluginIcon.Source = null;
+            stepGroup_createPluginIcon.ToolTip = null;
+
+            // step 1: env paths config
+            if (!UpdatePanelEnvVariables(folding))
             {
-                string sysValue = Environment.GetEnvironmentVariable( envVarName, EnvironmentVariableTarget.Machine );
-
-                if ( sysValue != null )
-                {
-                    return EnvironmentVariableTarget.Machine;
-                }
-            }
-
-            // We just put it at the user level.
-            return EnvironmentVariableTarget.User;
-        }
-
-        private void setBtn_Click(object sender, RoutedEventArgs e) {
-            Button btn = sender as Button;
-            TextBox tbx = GetElement(sender, "tbx") as TextBox;
-            Image img = GetElement(sender, "img") as Image;
-            string envVarName = btn.Tag.ToString();
-            EnvironmentVariableTarget envTarget = GetEnvVarRecommendedTarget(envVarName);
-            try
-            {
-                Environment.SetEnvironmentVariable(envVarName, WithoutTrailingSlash(tbx.Text), envTarget);
-            }
-            catch( SecurityException )
-            {
-                MessageBox.Show( "Failed to set system env var \"" + envVarName + "\" (requires admin rights)" );
+                UpdateInProgress = false;
                 return;
             }
-            tbx.Tag = tbx.Text;
-            img.Source = iconOk;
-            btn.IsEnabled = false;
-            if (tbx.Name == "tbxSDK") {
-                grdWizTmplButtons.IsEnabled = true;
-                grdGenerateSolution.IsEnabled = true;
-            }
-        }
 
-        private void UnsetEnvVarAndControls(TextBox tbx) {
-            Button setBtn = GetElement(tbx, "set") as Button;
-            Image errImg = GetElement(tbx, "img") as Image;
-            string envVarName = setBtn.Tag.ToString();
-            EnvironmentVariableTarget envTarget = GetEnvVarRecommendedTarget(envVarName);
-            try
+            // step 2: generate Plugin solution
+            stepGroup_generateSolution.IsEnabled = true;
+            if (!UpdatePanelGenerateSolution(folding))
             {
-                Environment.SetEnvironmentVariable(envVarName, null, envTarget);
-            }
-            catch( SecurityException )
-            {
-                MessageBox.Show("Failed to set system env var \"" + envVarName + "\" (requires admin rights)" );
+                UpdateInProgress = false;
                 return;
             }
-            tbx.Text = "";
-            tbx.Tag = "";
-            setBtn.IsEnabled = false;
-            if (tbx.Name == "tbxSDK") {
-                errImg.Source = iconError;
-                grdWizTmplButtons.IsEnabled = false;
-                grdGenerateSolution.IsEnabled = false;
-            }
-            else
-                errImg.Source = iconNothing;
-        }
 
-        private void btnUnsetAll_Click(object sender, RoutedEventArgs e) {
-            foreach ( PathConfigRow row in pathConfigs )
+            // step 3: build plugin binaries
+            stepGroup_build.IsEnabled = true;
+            if (!UpdatePanelBuild(folding))
             {
-                UnsetEnvVarAndControls(row.tbx);
+                if (folding) stepGroup_generateSolution.IsExpanded = true;
+                UpdateInProgress = false;
+                return;
             }
-        }
 
-        private void ClickSetButtonIfEnabled(Button btn) {
-            if (btn.IsEnabled)
-                setBtn_Click(btn, null);
-        }
-
-        private void btnSetAll_Click(object sender, RoutedEventArgs e) {
-            foreach ( PathConfigRow row in pathConfigs )
+            // step 4: new user plugin project
+            stepGroup_createPlugin.IsEnabled = true;
+            if (!UpdatePanelCreatePlugin(folding))
             {
-                ClickSetButtonIfEnabled(row.set);
+                UpdateInProgress = false;
+                return;
             }
-        }
 
-        private void chkSlnWinXpSupport_Changed(object sender, RoutedEventArgs e)
+            UpdateInProgress = false;
+        }
+        private bool UpdateInProgress = false;
+
+        private bool UpdatePanelEnvVariables(bool folding = false)
         {
-            CheckBox chk = sender as CheckBox;
-            if (chk.IsChecked == true &&
-                (cmbGenerateSlnFor.SelectedIndex == (int)DevEnv.VS2015
-                || cmbGenerateSlnFor.SelectedIndex == (int)DevEnv.VS2017
-                || cmbGenerateSlnFor.SelectedIndex == (int)DevEnv.VS2019))
+            SdkPathControl.StatusEnum status = SdkPathControl.StatusEnum.None;
+            bool hasGtaDir = false;
+            foreach (UIElement e in pathsStack.Children)
             {
-                lblSlnNote.Content = "Note: v14" + (cmbGenerateSlnFor.SelectedIndex == (int)DevEnv.VS2015 ? "0" : "1") + "_xp toolset is required";
-                lblSlnNote.Visibility = Visibility.Visible;
+                var c = e as SdkPathControl;
+                if (c != null)
+                {
+                    c.Update();
+                    var s = c.GetStatus();
+                    if (s.status > status)
+                    {
+                        status = s.status;
+                        stepGroup_envVarsIcon.Source = s.icon;
+                        stepGroup_envVarsIcon.ToolTip = s.description;
+                    }
+
+                    if (!String.IsNullOrEmpty(c.Data.Project) && s.status == SdkPathControl.StatusEnum.Ok) hasGtaDir = true;
+                }
             }
-            else
+            if (status == SdkPathControl.StatusEnum.Error)
             {
-                lblSlnNote.Content = "";
-                lblSlnNote.Visibility = Visibility.Hidden;
+                if (folding) stepGroup_envVars.IsExpanded = true;
+                return false;
             }
+
+            if (!hasGtaDir)
+            {
+                if (folding) stepGroup_envVars.IsExpanded = true;
+                stepGroup_envVarsIcon.Source = iconWarning;
+                stepGroup_envVarsIcon.ToolTip = "Not a single game directory was specified";
+
+                foreach (UIElement e in pathsStack.Children)
+                {
+                    var c = e as SdkPathControl;
+                    if (c != null && !String.IsNullOrEmpty(c.Data.Project))
+                    {
+                        var s = c.GetStatus();
+                        if (s.status == SdkPathControl.StatusEnum.None) c.SetStatus(SdkPathControl.StatusEnum.Ok, "warning", "Not set"); // actually not ok
+                    }
+                }
+                return false;
+            }
+
+            return true;
         }
 
-        private void cmbGenerateSlnFor_SelectionChanged(object sender, SelectionChangedEventArgs e) {
-            ComboBox cmb = sender as ComboBox;
-            btnGenerateSln.IsEnabled = cmb.SelectedIndex != (int)DevEnv.NONE;
-
-            //string pluginSdkDir = GetPluginSdkDir();
-            //string buildSlnPath = Path.Combine(pluginSdkDir, "plugin.sln");
-            //btnBuildSln.IsEnabled = btnGenerateSln.IsEnabled && File.Exists(buildSlnPath);
-
-            if (cmb.SelectedIndex == (int)DevEnv.VS2015 || cmb.SelectedIndex == (int)DevEnv.VS2017 || cmb.SelectedIndex == (int)DevEnv.VS2019)
+        private bool UpdatePanelGenerateSolution(bool folding = false)
+        {
+            if (File.Exists(Path.Combine(PathLogic.GetPluginSdkDir(), "plugin.sln")))
             {
-                chkSlnWinXpSupport.IsEnabled = true;
-                if (chkSlnWinXpSupport.IsChecked == true)
-                {
-                    lblSlnNote.Content = "Note: v14" + (cmbGenerateSlnFor.SelectedIndex == (int)DevEnv.VS2015 ? "0" : "1") + "_xp toolset is required";
-                    lblSlnNote.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    lblSlnNote.Content = "";
-                    lblSlnNote.Visibility = Visibility.Hidden;
-                }
+                stepGroup_generateSolutionIcon.Source = iconOk;
             }
             else
             {
-                chkSlnWinXpSupport.IsChecked = cmb.SelectedIndex == (int)DevEnv.CODEBLOCKS;
-                chkSlnWinXpSupport.IsEnabled = false;
-
-                if (cmbGenerateSlnFor.SelectedIndex == (int)DevEnv.VS2022)
-                {
-                    lblSlnNote.Content = "Note: xp support is deprecated";
-                    lblSlnNote.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    lblSlnNote.Content = "";
-                    lblSlnNote.Visibility = Visibility.Hidden;
-                }
+                if (folding) stepGroup_generateSolution.IsExpanded = true;
+                stepGroup_generateSolutionIcon.Source = iconError;
+                stepGroup_generateSolutionIcon.ToolTip = "Plugin SDK project solution not found";
+                return false;
             }
+
+            return true;
         }
 
-        private void btnGenerateSln_Click(object sender, RoutedEventArgs e) {
-            string pluginSdkDir = GetPluginSdkDir();
-            if (String.IsNullOrEmpty(pluginSdkDir))
-                return;
-            string premakeExePath = Path.Combine(pluginSdkDir, "tools\\premake\\premake5.exe");
-            if (!File.Exists(premakeExePath)) {
-                MessageBox.Show(String.Format("Can't find premake tool ('{0}')", premakeExePath));
-                return;
-            }
-            string premakeScriptPath = Path.Combine(pluginSdkDir, "tools\\premake\\premake5.lua");
-            if (!File.Exists(premakeScriptPath)) {
-                MessageBox.Show(String.Format("Can't find premake script ('{0}')", premakeScriptPath));
-                return;
-            }
-            ProcessStartInfo info = new ProcessStartInfo(premakeExePath);
-            switch (cmbGenerateSlnFor.SelectedIndex) {
-                case (int)DevEnv.VS2022:
-                    info.Arguments = "vs2022";
-                    break;
-                case (int)DevEnv.VS2019:
-                    info.Arguments = "vs2019";
-                    break;
-                case (int)DevEnv.VS2017:
-                    info.Arguments = "vs2017";
-                    break;
-                case (int)DevEnv.VS2015:
-                    info.Arguments = "vs2015";
-                    break;
-                case (int)DevEnv.CODEBLOCKS:
-                    info.Arguments = "codeblocks";
-                    break;
-            }
-            if (chkSlnWinXpSupport.IsChecked == true)
-                info.Arguments += " --winxp";
-            info.Arguments += " --file=" + '"' + premakeScriptPath + '"' + " --pluginsdkdir=" + '"' + pluginSdkDir + '"';
-            info.UseShellExecute = false;
-            info.Verb = "runas";
-            try {
-                Process.Start(info);
-            }
-            catch (Win32Exception) {
-            }
-        }
-
-        private void btnBuildSln_Click(object sender, RoutedEventArgs e)
+        private void btnGenerateSlnVS_Click(object sender, RoutedEventArgs e)
         {
-            //TODO: build logic to find Visual Studio installation folder; then find environment shell script;
-            // then execute msbuild.
+            ProcessStartInfo psi = new ProcessStartInfo();
+            psi.WorkingDirectory = Path.Combine(PathLogic.GetPluginSdkDir(), "tools", "generate");
+            psi.FileName = Path.Combine(psi.WorkingDirectory, "Visual Studio.bat");
 
-            //string sdkDir = GetPluginSdkDir();
-            //if (sdkDir != "")
-            //{
-            //    string vsixPath = Path.Combine(sdkDir, "tools\\build\\Build Solution.bat");
-            //    if (File.Exists(vsixPath))
-            //        Process.Start(vsixPath);
-            //    else
-            //        MessageBox.Show(String.Format("Can't find '{0}'", vsixPath));
-            //}
-        }
-
-        static private string FindDirByVariableName(string varName)
-        {
-            switch( varName )
+            if (File.Exists(psi.FileName))
             {
-            case "PLUGIN_SDK_DIR":        return SDKFolders.FindPluginSdkDir();
-            case "DIRECTX9_SDK_DIR":      return SDKFolders.FindDirectX9SdkDir();
-            case "RWD3D9_DIR":            return SDKFolders.FindRWD3D9SdkDir();
-            case "MOONLOADER_SDK_SA_DIR": return SDKFolders.FindMoonLoaderSdkDir();
-            case "GTA_SA_DIR":            return PathLogic.ScanGTASAGameDirectory();
-            case "GTA_VC_DIR":            return PathLogic.ScanGTAVCGameDirectory();
-            case "GTA_III_DIR":           return PathLogic.ScanGTA3GameDirectory();
-            }
+                Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
+                IsEnabled = false;
+                UpdateLayout();
 
-            return null;
+                var process = new Process { StartInfo = psi };
+                process.Start();
+                process.WaitForExit();
+
+                Mouse.OverrideCursor = null;
+                IsEnabled = true; // freeze main window
+                Update(true);
+            }
+            else
+                MessageBox.Show(String.Format("Can't find '{0}'", psi.FileName));
         }
 
-        private void autBtn_Click(object sender, RoutedEventArgs e)
+        private bool UpdatePanelBuild(bool folding = false)
         {
-            Button btn = sender as Button;
-            Button setBtn = GetElement(sender, "set") as Button;
-            string envVarName = setBtn.Tag.ToString();
-            string pathToVariable = FindDirByVariableName(envVarName);
-
-            if (pathToVariable != null)
+            int selected = 0;
+            int built = 0;
+            foreach (var child in buildConfigurationStack.Children)
             {
-                TextBox tbx = GetElement(sender, "tbx") as TextBox;
-                tbx.Text = pathToVariable;
-            }
-        }
-
-        private void btnAutoDetectAll_Click(object sender, RoutedEventArgs e)
-        {
-            //TODO: CLEO_SDK variables, MOONLOADER SDK variable.
-
-            foreach ( PathConfigRow row in pathConfigs )
-            {
-                if (row.aut.IsEnabled)
+                var c = child as BuildConfControl;
+                if (c != null)
                 {
-                    // Perform click.
-                    autBtn_Click(row.aut, e);
+                    c.Update();
+                    if (c.DebugChecked) selected++;
+                    if (c.ReleaseChecked) selected++;
+                    if (c.DebugBinaryExists) built++;
+                    if (c.ReleaseBinaryExists) built++;
                 }
             }
+
+            if (built > 0)
+            {
+                if (folding) stepGroup_build.IsExpanded = false;
+                stepGroup_buildIcon.Source = iconOk;
+                stepGroup_buildIcon.ToolTip = null;
+            }
+            else
+            {
+                if (folding) stepGroup_build.IsExpanded = true;
+                stepGroup_buildIcon.Source = iconError;
+                stepGroup_buildIcon.ToolTip = "No binary has been builded yet";
+            }
+
+            stepGroup_buildButtonsGrid.IsEnabled = selected > 0;
+            stepGroup_buildVsBtnLbl.Content = $"({selected})";
+
+            return built > 0;
+        }
+
+        private static bool buildProjectConfiguration(string msbuild, string workdir, string solution, string project, string configuration)
+        {
+            ProcessStartInfo psi = new ProcessStartInfo
+            {
+                FileName = "CMD.EXE",
+                WorkingDirectory = PathLogic.GetPluginSdkDir(),
+                Arguments = String.Format("/v /c " +
+                    "@ECHO off & " +
+                    "TITLE GTA Plugin-SDK: building {2} ({3}) & " +
+                    "\"{0}\" {1} /t:{2} /property:Configuration={3} /m & ", msbuild, solution, project, configuration) +
+                    "IF !ERRORLEVEL! NEQ 0 pause"
+            };
+
+            var process = new Process { StartInfo = psi };
+            Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
+            process.Start();
+            process.WaitForExit();
+            Mouse.OverrideCursor = null;
+
+            return process.ExitCode == 0;
+        }
+
+        private void stepGroup_buildVsBtnClick(object sender, RoutedEventArgs e)
+        {
+            var msbuild = PathLogic.GetVisualStudio2022MsBuildPath();
+            var sdkDir = PathLogic.GetPluginSdkDir();
+
+            if (String.IsNullOrEmpty(msbuild) || String.IsNullOrEmpty(sdkDir))
+            {
+                return;
+            }
+
+            IsEnabled = false;
+            foreach (var child in buildConfigurationStack.Children)
+            {
+                var c = child as BuildConfControl;
+                if (c != null)
+                {
+                    if (c.DebugChecked)
+                    {
+                        if (!buildProjectConfiguration(msbuild, sdkDir, "plugin.sln", c.Data.Project, "zDebug"))
+                        {
+                            IsEnabled = true;
+                            Update();
+                            return;
+                        }
+
+                        c.DebugChecked = false;
+                        Update();
+                        UpdateLayout();
+                    }
+
+                    if (c.ReleaseChecked)
+                    {
+                        if (!buildProjectConfiguration(msbuild, sdkDir, "plugin.sln", c.Data.Project, "Release"))
+                        {
+                            IsEnabled = true;
+                            Update();
+                            return;
+                        }
+
+                        c.ReleaseChecked = false;
+                        Update();
+                        UpdateLayout();
+                    }
+                }
+            }
+
+            Update();
+            IsEnabled = true;
+        }
+
+        private bool UpdatePanelCreatePlugin(bool folding = false)
+        {
+            if (folding) stepGroup_createPlugin.IsExpanded = true;
+            
+            if (!stepGroup_createPlugin.IsVisible) return false;
+
+            stepGroup_createPluginButtonsGrid.IsEnabled = false;
+
+            foreach (UIElement child in createPluginTargetContainer.Children)
+            {
+                var c = child as TargetPlatformControl;
+                if (c != null) c.Update();
+            }
+
+            string name = pluginNameTbx.Text.Trim();
+            if (String.IsNullOrWhiteSpace(name))
+            {
+                pluginNameStatusImg.Source = iconError;
+                pluginNameGrp.ToolTip = stepGroup_createPluginButtonsGrid.ToolTip = "No name specified";
+                return false;
+            }
+
+            if (name.Any(ch => Path.GetInvalidFileNameChars().Contains(ch) || Char.IsWhiteSpace(ch)))
+            {
+                pluginNameStatusImg.Source = iconError;
+                pluginNameGrp.ToolTip = stepGroup_createPluginButtonsGrid.ToolTip = "Name contains forbidden character(s)";
+                return false;
+            }
+
+            var a = Path.Combine(PathLogic.GetPluginSdkDir(), "tools\\myplugin-gen\\generated", name, name + ".sln");
+            if (File.Exists(Path.Combine(PathLogic.GetPluginSdkDir(), "tools\\myplugin-gen\\generated", name, name + ".sln")))
+            {
+                pluginNameStatusImg.Source = iconError;
+                pluginNameGrp.ToolTip = stepGroup_createPluginButtonsGrid.ToolTip = "Plugin project with specified name already exists";
+                return false;
+            }
+
+            pluginNameStatusImg.Source = iconOk;
+            pluginNameGrp.ToolTip = stepGroup_createPluginButtonsGrid.ToolTip = null;
+
+            int targetCount = 0;
+            foreach (UIElement child in createPluginTargetContainer.Children)
+            {
+                var c = child as TargetPlatformControl;
+                if (c != null && c.IsChecked == true) targetCount++;
+            }
+            
+            if (targetCount == 0) stepGroup_createPluginButtonsGrid.ToolTip = "No target game has been selected";
+            stepGroup_createPluginButtonsGrid.IsEnabled = targetCount > 0;
+            return true;
+        }
+
+        private static bool generateNewPlugin(string dirPath, string name, List<string> args)
+        {
+            if (!Directory.Exists(dirPath)) Directory.CreateDirectory(dirPath);
+
+            string trgStr = "";
+            foreach (var a in args)
+            {
+                if (!String.IsNullOrEmpty(trgStr)) trgStr += " ";
+                trgStr += a;
+            }
+
+            ProcessStartInfo psi = new ProcessStartInfo
+            {
+                FileName = "CMD.EXE",
+                WorkingDirectory = Path.Combine(PathLogic.GetPluginSdkDir(), "tools\\premake"),
+                Arguments = "/v /c " +
+                    "@ECHO off & " +
+                    "TITLE GTA Plugin-SDK: generating new plugin & " +
+                    $"premake5.exe --file=premake5.lua newplugin --dir=\"{dirPath}\" --name=\"{name}\" {trgStr} & " +
+                    "IF !ERRORLEVEL! NEQ 0 pause"
+            };
+
+            var process = new Process { StartInfo = psi };
+            Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
+            process.Start();
+            process.WaitForExit();
+            Mouse.OverrideCursor = null;
+
+            return process.ExitCode == 0;
+        }
+
+        private void stepGroup_createPluginVsBtnClick(object sender, RoutedEventArgs e)
+        {
+            string name = pluginNameTbx.Text.Trim();
+            string projectDir = Path.Combine(PathLogic.GetPluginSdkDir(), "tools\\myplugin-gen\\generated", name);
+
+            var args = new List<string>();
+            foreach (UIElement child in createPluginTargetContainer.Children)
+            {
+                var c = child as TargetPlatformControl;
+                if (c != null && c.IsChecked == true)
+                {
+                    args.Add("--" + c.Data.Target);
+                }
+            }
+
+            // additional properties
+            foreach (UIElement child in createPluginPropertiesContainer.Children)
+            {
+                var c = child as CheckBox;
+                var data = c?.Tag as SdkComponent;
+                if (c != null && c.IsChecked == true && data != null)
+                {
+                    args.Add(data.TargetProperty);
+                }
+            }
+
+            if (generateNewPlugin(projectDir, name, args))
+            {
+                Process.Start(projectDir); // open directory in Explorer
+            }
+
+            UpdatePanelCreatePlugin();
+        }
+
+        private void pluginNameTbx_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            UpdatePanelCreatePlugin();
         }
     }
 }

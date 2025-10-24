@@ -1,165 +1,85 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.IO;
+using System.Windows;
+using System.Xml.Linq;
 
 namespace PluginSdkWizardInstaller
 {
-    class SDKFolders
+    public class SdkComponent
     {
-        static public string FindPluginSdkDir()
+        public string Name;
+        public string EnvVarName;
+        public bool Mandatory;
+        public string CheckFile;
+        public string Project;
+        public string ProjectOutput;
+        public string Target;
+        public string TargetProperty;
+        public string Info;
+
+        static public List<SdkComponent> LoadFromFile(string filePath)
         {
+            var result = new List<SdkComponent>();
+
             try
             {
-                string desktopFolder = Environment.GetFolderPath( Environment.SpecialFolder.Desktop );
-
-                // Scan common plugin-sdk locations.
+                XDocument doc = XDocument.Load(filePath);
+                
+                int num;
+                foreach (var c in doc.Descendants("component"))
                 {
-                    string[] likelyFolders =
+                    var component = new SdkComponent
                     {
-                        desktopFolder + "\\plugin-sdk",
-                        "C:\\plugin-sdk",
-                        "C:\\Projects\\plugin-sdk",
-                        "D:\\plugin-sdk",
-                        "D:\\Projects\\plugin-sdk",
-                        Environment.GetFolderPath( Environment.SpecialFolder.ProgramFiles ) + "\\plugin-sdk"
-#if NETFW_4
-                        , Environment.GetFolderPath( Environment.SpecialFolder.ProgramFilesX86 ) + "\\plugin-sdk"
-#endif
-                };
+                        Name = c.Element("name").Value // must be present
+                    };
 
-                    foreach ( string tryLoc in likelyFolders )
-                    {
-                        if ( PathLogic.IsPluginSDKDirectory( tryLoc ) )
-                        {
-                            throw new PathLogic.FoundFolderException( tryLoc );
-                        }
-                    }
+                    component.EnvVarName = c.Element("envVar")?.Value;
+                    component.CheckFile = c.Element("checkFile")?.Value;
+
+                    int.TryParse(c.Element("mandatory")?.Value, out num);
+                    component.Mandatory = num != 0;
+
+                    component.Project = c.Element("project")?.Value;
+                    component.ProjectOutput = c.Element("projectOutput")?.Value;
+                    component.Target = c.Element("target")?.Value;
+                    component.TargetProperty = c.Element("targetParam")?.Value;
+                    component.Info = c.Element("info")?.Value;
+
+                    result.Add(component);
                 }
-
-                // If not found in likely folders, we scan the desktop ones next.
-                PathLogic.ForAllFolders(desktopFolder, true,
-                    (tryLoc) => {
-                        if ( PathLogic.IsPluginSDKDirectory( tryLoc ) )
-                        {
-                            throw new PathLogic.FoundFolderException( tryLoc );
-                        }
-                    }
-                );
             }
-            catch(PathLogic.FoundFolderException except )
+            catch (FileNotFoundException)
             {
-                return except.GetFolder();
+                MessageBox.Show($"The file '{filePath}' was not found.", "Config loading error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-            
-            // Could not find anything.
-            return null;
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred: {ex.Message}", "Config loading error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+            return result;
         }
 
-        static public string FindDirectX9SdkDir()
+        public string ReadEnvPath()
         {
-            try
-            {
-#if NETFW_4
-                string progFilesPath = Environment.GetFolderPath( Environment.SpecialFolder.ProgramFilesX86);
-#else
-                string progFilesPath = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
-#endif
-
-                // Check common folders first.
-                {
-                    string[] likelyFolders =
-                    {
-                        "D:\\Projects\\DXSDK\\9.0",
-                        "D:\\Projects\\DXSDK\\9.0c",
-                        progFilesPath + "\\Microsoft DirectX SDK (June 2010)"
-                    };
-
-                    foreach ( string tryLoc in likelyFolders )
-                    {
-                        if ( PathLogic.IsDirectX9Directory( tryLoc ) )
-                        {
-                            throw new PathLogic.FoundFolderException( tryLoc );
-                        }
-                    }
-                }
-
-                // Try scanning the entire program files folder (x86) for the DX9 SDK.
-                PathLogic.ForAllFolders(progFilesPath, false,
-                    (tryLoc) =>
-                    {
-                        if ( PathLogic.IsDirectX9Directory(tryLoc) )
-                        {
-                            throw new PathLogic.FoundFolderException( tryLoc );
-                        }
-                    }
-                );
-            }
-            catch(PathLogic.FoundFolderException except )
-            {
-                return except.GetFolder();
-            }
-
-            return null;
+            return PathLogic.GetOsVariable(EnvVarName);
         }
 
-        static public string FindRWD3D9SdkDir()
+        public void WriteEnvPath(string path)
         {
-            try
-            {
-                string desktopFolder = Environment.GetFolderPath( Environment.SpecialFolder.Desktop );
-
-                // Try common locations of RWD3D9 first.
-                {
-                    string[] likelyFolders =
-                    {
-                        desktopFolder + "\\rwd3d9",
-                        "D:\\Projects\\rwd3d9"
-                    };
-
-                    foreach ( string tryLoc in likelyFolders )
-                    {
-                        if ( PathLogic.IsRWD3D9Directory( tryLoc ) )
-                        {
-                            throw new PathLogic.FoundFolderException( tryLoc );
-                        }
-                    }
-                }
-            }
-            catch(PathLogic.FoundFolderException except )
-            {
-                return except.GetFolder();
-            }
-
-            return null;
+            PathLogic.SetOsVariable(EnvVarName, path);
         }
 
-        static public string FindMoonLoaderSdkDir() {
-            try {
-                string desktopFolder = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+        public bool IsPathValid()
+        {
+            var path = ReadEnvPath();
 
-                // Try common locations of MoonLoader SDK first.
-                {
-                    string[] likelyFolders =
-                    {
-                        desktopFolder + "\\moonloader_module_sdk",
-                        desktopFolder + "\\moonloader_sdk",
-                        "D:\\Projects\\moonloader_module_sdk",
-                        "D:\\Projects\\moonloader_sdk"
-                    };
+            if (String.IsNullOrEmpty(path)) return !Mandatory;
 
-                    foreach (string tryLoc in likelyFolders) {
-                        if (PathLogic.IsMoonLoaderSdkDirectory(tryLoc)) {
-                            throw new PathLogic.FoundFolderException(tryLoc);
-                        }
-                    }
-                }
-            }
-            catch (PathLogic.FoundFolderException except) {
-                return except.GetFolder();
-            }
+            if (String.IsNullOrEmpty(CheckFile)) return true;
 
-            return null;
+            return File.Exists(Path.Combine(path, CheckFile));
         }
-    }
+    };
 }
